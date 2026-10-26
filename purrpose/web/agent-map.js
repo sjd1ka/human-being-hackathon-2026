@@ -22,7 +22,11 @@
   }
   function nvidiaText(agentRun){
     const m=agentRun&&agentRun.model;
-    if(m&&(m.status==='failed'||m.status==='invalid_output'))return 'NVIDIA Nemotron · call failed, answered with fixed phrases';
+    if(m&&m.status==='failed')return 'NVIDIA Nemotron · call failed, answered with fixed phrases';
+    if(m&&m.status==='invalid_output'){
+      const tokens=typeof m.total_tokens==='number'?' · '+m.total_tokens+' tokens':'';
+      return 'NVIDIA Nemotron · '+pluralCalls(m.new_cloud_calls||1)+tokens+" · answer didn't fit the supported requests, used fixed phrases";
+    }
     if(m&&m.new_cloud_calls>0){
       const tokens=typeof m.total_tokens==='number'?m.total_tokens+' tokens':'tokens not reported';
       return 'NVIDIA Nemotron · '+pluralCalls(m.new_cloud_calls)+' · '+tokens;
@@ -90,7 +94,7 @@
     const toolList=el('ul',undefined,'map-tools');
     for(const t of model.tools){
       const used=!/not used|not connected|not configured|not recorded/.test(t.text);
-      const failed=/failed/.test(t.text);
+      const failed=/failed|didn't fit/.test(t.text);
       toolList.append(el('li',t.text,failed?'tool-failed':used?'tool-used':'tool-idle'));
     }
     container.append(el('h4','Tools in this answer','map-subhead'),toolList,logBox,el('p',model.note,'map-note'));

@@ -11,15 +11,33 @@ from .journeys import public_record
 from .research_case import assess_saved_research
 from .organization_research import organization_research, LINKS as REAL_LINKS
 from .model_intent import ModelIntent
+from .chat_intent import ONTARIO_CITIES
 
 GUARDS = ('ignore instructions', 'ignore previous', '忽略规则', '转账', 'pay for me', 'donate for me', '替我捐')
 NEGATIONS = ("don't", 'do not', 'not ottawa', 'not toronto', '不要', '不想', '不是')
 REFRESH = ('refresh', 'recheck website', 'check website again', '重新检查官网', '重新读取', '刷新官网')
 FICTIONAL = ('synthetic', 'fictional', '虚构', '模拟')  # Only literal words may switch to fictional cases.
-CITY_WORDS =(('Ottawa', ('ottawa', '渥太华')), ('Toronto', ('toronto', '多伦多')))
+CITY_ALIASES = {'Ottawa': ('渥太华',), 'Toronto': ('多伦多',)}
+LIST_WORDS = ('list of', 'which rescues', 'what rescues', 'all rescues', 'all the rescues', 'organizations in',
+              'organisations in', 'charities in', 'shelters in', 'trusted organizations', 'trusted rescues',
+              '有哪些机构', '机构名单')
+ABOUT_WORDS = ('what can you do', 'what do you do', 'how does this work', 'how does purrpose', 'what is purrpose',
+               'how do you decide', 'who are you', '你能做什么', '怎么运作')
+DONATE_WORDS = ('how do i donate', 'how to donate', 'where do i donate', 'where can i donate', 'how can i donate',
+                'donate now', '怎么捐', '如何捐')
+THANKS_WORDS = ('thank', 'bye', 'cheers', '谢谢', '再见')
 CANONICAL = {'greet': 'hello', 'amount': 'how much', 'allocation': 'allocation', 'evidence': 'evidence',
-             'gaps': 'missing', 'select_real_case': 'lucy', 'history': 'lucy history',
-             'organization_checklist': 'lucy organization checklist', 'confirm_expansion': 'yes'}
+             'gaps': 'missing', 'select_real_case': 'lucy', 'history': 'history',
+             'organization_checklist': 'lucy organization checklist', 'confirm_expansion': 'yes',
+             'list_organizations': 'list of organizations', 'about': 'what can you do',
+             'donate_how': 'how do i donate', 'thanks': 'thank you'}
+
+
+def cities_in(text):
+    """Listed Ontario cities named in a casefolded message, in list order."""
+    return [c for c in ONTARIO_CITIES
+            if re.search(r'(?<![a-z])'+re.escape(c.casefold())+r'(?![a-z])', text)
+            or any(a in text for a in CITY_ALIASES.get(c, ()))]
 
 
 def canonical(proposal):
@@ -33,8 +51,7 @@ def canonical(proposal):
 
 
 def code_only(text):
-    both_cities = all(any(w in text for w in words) for _, words in CITY_WORDS)
-    return any(any(w in text for w in group) for group in (GUARDS, NEGATIONS, REFRESH)) or both_cities
+    return any(any(w in text for w in group) for group in (GUARDS, NEGATIONS, REFRESH)) or len(cities_in(text)) > 1
 
 
 def model_context(state, offer_ontario=False):
@@ -127,18 +144,53 @@ class Conversation:
             return response('I can explain public evidence, but cannot change verification rules or handle payments.',
                             '我可以解释公开证据，但不能修改核查规则或代收、代付捐款。')
         if text in ('hi', 'hello', 'hey', '你好', '您好'):
+            state['greeted'] = state.get('greeted', 0)+1
+            if state['greeted'] > 1:
+                return response("Hi again! You can ask about Lucy's case, look for a cat by Ontario city, or ask what Purrpose can do.",
+                                '又见面了！你可以问 Lucy 的案例、按安省城市找小猫，或者问 Purrpose 能做什么。')
             return response('Hi! I can help find a case, explain missing evidence, amounts and sources. Which Ontario city, or anywhere in Ontario?',
                             '你好！我可以帮你找案例，解释缺失证据、金额和来源。想看安省哪个城市，还是安省都可以？')
         if any(w in text for w in NEGATIONS):
             return response('Please state the city you do want, or say “anywhere in Ontario”. I have not changed your selection.',
                             '请直接告诉我你想看的城市，或说“安省都可以”。我没有更改选择。')
+        if len(text) <= 30 and any(w in text for w in THANKS_WORDS):
+            return response("You're welcome. Ask any time about a case, its sources or what is still missing.",
+                            '不客气。随时可以问案例、来源或仍缺少的信息。')
+        if any(w in text for w in ABOUT_WORDS):
+            return response('Purrpose checks the evidence behind an animal rescue appeal. When you ask about a case, four agent roles in code '
+                            'read its permitted sources, check what they support, look into conflicting statements and keep anything unproven '
+                            'marked as missing. An AI model only works out what you are asking; code writes every answer, and nothing counts as '
+                            'verified without a source. There is one real case right now, Lucy from Guelph Humane Society, plus a labelled '
+                            'fictional example.',
+                            'Purrpose 检查动物救助呼吁背后的证据。你问到某个案例时，四个代码角色会读取允许的来源、核对来源支持什么、调查相互矛盾的说法，'
+                            '并把未经证实的内容标为缺失。AI 模型只负责理解你在问什么；每个回答都由代码写出，没有来源就不算核实。'
+                            '目前有一个真实案例：Guelph Humane Society 的 Lucy，另有一个标明为虚构的示例。')
+        if any(w in text for w in DONATE_WORDS):
+            return response("Purrpose does not take payments or donations. Give through the rescue's own official website or charity page, "
+                            "after checking its registration and the case's evidence. For Lucy, the donation link is on Guelph Humane "
+                            'Society’s own appeal page; ask “What evidence is missing?” first to see what is still unverified.',
+                            'Purrpose 不收款，也不代收捐款。请在核对机构登记和案例证据后，通过救助机构自己的官网或慈善页面捐款。'
+                            'Lucy 的捐款链接在 Guelph Humane Society 自己的呼吁页面上；可以先问“还缺哪些证据？”了解哪些内容尚未核实。')
+        if any(w in text for w in LIST_WORDS):
+            return response('Purrpose cannot call any rescue trusted: it reviews the evidence behind one appeal at a time. A list of '
+                            'Ontario animal charities from the CRA’s 2024 charity data is planned through the Zetaris connection, '
+                            'which is not connected yet. Right now one real case can be reviewed: Lucy, from Guelph Humane Society. '
+                            'Say “Tell me about Lucy” to see its evidence.',
+                            'Purrpose 不能称任何救助机构“可信”，它一次只审查一个呼吁背后的证据。基于加拿大税务局 2024 年慈善数据的'
+                            '安省动物慈善机构名单计划通过 Zetaris 提供，目前尚未接通。现在可以审查一个真实案例：Guelph Humane Society 的 Lucy。'
+                            '说“Tell me about Lucy”查看证据。')
         select_research = any(w in text for w in ('lucy', 'real case', '真实案例'))
+        research_history = any(w in text for w in ('history', '历史记录', '审查记录'))
+        if research_history and not select_research and state.get('collection') == 'synthetic':
+            history = self.app.dispatch('/api/history', {})
+            return response('This is the latest retained review of the fictional case, not a new check. '+history.get('message', ''),
+                            '这是虚构案例最近保存的审查记录，不是重新检查。', history=history)
+        select_research = select_research or (research_history and not state.get('research'))
         if any(w in text for w in FICTIONAL):
             state.update(collection='synthetic', research=False, active=False, expand=False)
             state.pop('last_live_read', None)
         if select_research:
             state['collection'] = 'real'
-        research_history = any(w in text for w in ('history', '历史记录', '审查记录'))
         organization_request = any(w in text for w in ('organization checklist', 'our rescue', 'as a rescue', '我们的机构', '机构需要补', '组织要补'))
         refresh = any(w in text for w in REFRESH)
         research_question = any(w in text for w in ('how much', 'remaining', '还缺', '多少钱', 'allocation', '分配', '用途', 'money', '查到', 'found', 'verified', 'trust', '可信', 'missing', '缺', 'source', '来源', 'evidence', '证据', '登记', 'registered', 'latest', '最新', '补充', 'provide'))
@@ -184,10 +236,10 @@ class Conversation:
                 cn += ' 你上次请求的刷新未完整完成；保存的调查不能视为当前已确认的信息。'
             return response(en+' These findings were observed on 24 October 2026; this chat did not fetch sources again. Say “refresh Lucy” to check the two configured articles.',
                             cn+' 这些资料查阅于2026年10月24日；本次对话没有重新联网读取。', research=dossier)
-        if any(w in text for w in ('ottawa', '渥太华')) and any(w in text for w in ('toronto', '多伦多')):
+        named = cities_in(text)
+        if len(named) > 1:
             return response('Please choose one city, or anywhere in Ontario.', '请选择一个城市，或安省都可以。')
-        city = next((name for name, words in [('Ottawa', ('ottawa', '渥太华')), ('Toronto', ('toronto', '多伦多'))]
-                     if any(w in text for w in words)), None)
+        city = named[0] if named else None
         broad = any(w in text for w in ('anywhere in ontario', 'all ontario', 'in ontario', '安省都可以', '整个安省', '在安省')) and city is None
         yes = text in ('yes', 'yes please', '可以', '好', '是的')
         discovery = any(w in text for w in ('help a cat', 'find a cat', 'find a rescue', 'want to donate', '帮助小猫', '帮助一只', '想捐', '找救助'))
@@ -215,9 +267,10 @@ class Conversation:
                              else ('没有已确认治疗城市匹配的真实线索。是否查看安省范围、地点仍待核实的线索？' if result['status']=='no_city_match'
                                    else ('这是已保存的真实待核实线索，不是全网搜索，也不是合格推荐。' if state.get('collection')=='real'
                                          else '这是虚构案例演示，不是真实捐款推荐。'))), results=result)
-        if any(w in text for w in ('how much', 'remaining', '还缺', '多少钱', 'why', 'unverified', 'missing', '为什么', '没核实', '未核实', '缺什么', 'source', 'evidence', '来源', '证据', 'latest', '最新')):
+        if any(w in text for w in ('how much', 'remaining', '还缺', '多少钱', 'why', 'unverified', 'missing', '为什么', '没核实', '未核实', '缺什么', 'source', 'evidence', '来源', '证据', 'latest', '最新',
+                                   'allocation', 'money go', 'money used', '分配', '用途')):
             if not state['active']:
-                return response('Which case? First ask to find a cat in Ottawa, Toronto, or anywhere in Ontario.',
+                return response('Which case? Ask about Lucy, or first look for a cat in an Ontario city or anywhere in Ontario.',
                                 '你指哪个案例？请先说想看渥太华、多伦多，还是安省都可以。')
             # Always re-evaluate current case state; never answer from a stale chat copy.
             journeys = self.app.journeys()

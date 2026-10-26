@@ -156,6 +156,81 @@ class ModelConversationTests(TestCase):
         answer = self.say('yes', intent('confirm_expansion'))
         self.assertNotIn('results', answer)
 
+    def test_observed_list_request_gets_an_honest_answer_not_a_dead_end(self):
+        # Observed live 26 Oct: the model returned this exact proposal for the question below.
+        raw = json.dumps({'intent': 'organization_checklist', 'city': None, 'region_wide': True})
+        answer = self.say('Give me a list of all trusted organizations in Ontario for Animal Rescue', raw)
+        self.assertNotIn('did not confidently understand', answer['reply'])
+        self.assertEqual(answer['model_intent']['status'], 'used')
+
+    def test_list_organizations_never_calls_anyone_trusted_or_invents_names(self):
+        answer = self.say('which rescues are in ontario?', intent('list_organizations'))
+        self.assertIn('cannot call any rescue trusted', answer['reply'])
+        self.assertIn('Zetaris', answer['reply'])
+        self.assertNotIn('results', answer)
+        self.assertNotIn('Toronto Cat Rescue', answer['reply'])
+
+    def test_about_explains_what_purrpose_does_and_who_decides(self):
+        answer = self.say('what can you do?', intent('about'))
+        for phrase in ('Lucy', 'code', 'model'):
+            self.assertIn(phrase, answer['reply'])
+        self.assertNotIn('results', answer)
+
+    def test_donate_how_points_to_the_rescue_and_takes_no_payment(self):
+        answer = self.say('how do I donate?', intent('donate_how'))
+        self.assertIn('does not take payments', answer['reply'])
+        self.assertIn("rescue's own", answer['reply'])
+
+    def test_thanks_gets_a_short_reply(self):
+        answer = self.say('thanks!', intent('thanks'))
+        self.assertNotIn('Could you say a bit more', answer['reply'])
+        self.assertNotIn('results', answer)
+
+    def test_guelph_is_a_usable_city(self):
+        answer = self.say('any cats to help in guelph?', intent('discover', city='Guelph'))
+        self.assertIn('results', answer)
+        self.assertEqual(self.app.conversation.sessions['one']['city'], 'Guelph')
+
+    def test_organization_checklist_prompt_needs_a_stated_role(self):
+        from .model_intent import SYSTEM
+        self.assertIn('says they run or represent a rescue', SYSTEM)
+        self.assertIn('list_organizations', SYSTEM)
+
+    def test_second_greeting_is_not_a_repeat(self):
+        first = self.say('hello', intent('greet'))['reply']
+        second = self.say('hello again', intent('greet'))['reply']
+        self.assertNotEqual(first, second)
+
+    def test_history_follows_the_fictional_case_when_that_is_active(self):
+        self.say('show me the fictional demo in Ottawa', intent('fictional_demo', city='Ottawa'))
+        answer = self.say('what did you record before?', intent('history'))
+        self.assertNotIn('research_history', answer)
+        self.assertIn('fictional', answer['reply'])
+
+
+class BoundedMatchingGapTests(TestCase):
+    def say(self, text, session='m'):
+        return self.app.dispatch('/api/chat', {'session_id': session, 'message': text})
+
+    def setUp(self):
+        self.app = LocalApp()
+
+    def test_allocation_without_a_case_asks_which_case(self):
+        answer = self.say('where does the money go?')
+        self.assertNotIn('did not confidently understand', answer['reply'])
+        self.assertIn('Which case', answer['reply'])
+
+    def test_new_request_types_work_without_a_model(self):
+        for text, phrase in (('which rescues are in ontario?', 'cannot call any rescue trusted'),
+                             ('what can you do?', 'Lucy'), ('how do i donate?', 'does not take payments'),
+                             ('thank you', 'welcome')):
+            with self.subTest(text=text):
+                self.assertIn(phrase, self.say(text, session=text[:8].replace(' ', '-').replace('?', ''))['reply'])
+
+    def test_bounded_matcher_knows_guelph(self):
+        self.assertIn('results', self.say('find a cat in guelph'))
+        self.assertEqual(self.app.conversation.sessions['m']['city'], 'Guelph')
+
 
 class AgentRunModelTests(TestCase):
     def setUp(self):

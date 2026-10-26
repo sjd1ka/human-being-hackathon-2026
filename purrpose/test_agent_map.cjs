@@ -43,12 +43,15 @@ m=model(run(),{...none,model:{route:'nvidia_direct',status:'cached',intent:'amou
 assert.equal(m.tools[0].text,'NVIDIA Nemotron · not used');
 assert.equal(model(run(),none).tools[0].text,'NVIDIA Nemotron · not used');
 
-// failed or invalid model call: no tokens
-for(const status of ['failed','invalid_output']){
- m=model(run(),{...none,model:{route:'nvidia_direct',status,intent:null,new_cloud_calls:1,total_tokens:null}});
- assert.equal(m.tools[0].text,'NVIDIA Nemotron · call failed, answered with fixed phrases');
- assert.ok(!/\d+ tokens/.test(m.tools[0].text));
-}
+// a failed call has no tokens
+m=model(run(),{...none,model:{route:'nvidia_direct',status:'failed',intent:null,new_cloud_calls:1,total_tokens:null}});
+assert.equal(m.tools[0].text,'NVIDIA Nemotron · call failed, answered with fixed phrases');
+assert.ok(!/\d+ tokens/.test(m.tools[0].text));
+// a completed call whose answer did not fit the supported requests is not a failed call
+m=model(run(),{...none,model:{route:'nvidia_direct',status:'invalid_output',intent:null,new_cloud_calls:1,total_tokens:475}});
+assert.equal(m.tools[0].text,"NVIDIA Nemotron · 1 call · 475 tokens · answer didn't fit the supported requests, used fixed phrases");
+m=model(run(),{...none,model:{route:'nvidia_direct',status:'invalid_output',intent:null,new_cloud_calls:1,total_tokens:null}});
+assert.equal(m.tools[0].text,"NVIDIA Nemotron · 1 call · answer didn't fit the supported requests, used fixed phrases");
 
 // H-MEM states
 assert.equal(model(run()).tools[1].text,'H-MEM · not configured');

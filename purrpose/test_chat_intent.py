@@ -1,6 +1,6 @@
 import json
 from unittest import TestCase
-from .chat_intent import validate_intent
+from .chat_intent import ONTARIO_CITIES, validate_intent
 
 
 class ModelIntentBoundaryTests(TestCase):
@@ -11,7 +11,6 @@ class ModelIntentBoundaryTests(TestCase):
     def test_tool_or_decision_fields_rejected(self):
         for obj in ({'intent': 'pay', 'city': None, 'region_wide': False},
                     {'intent': 'discover', 'city': 'Ottawa', 'region_wide': True},
-                    {'intent': 'amount', 'city': None, 'region_wide': True},
                     {'intent': 'discover', 'city': None, 'region_wide': True, 'qualified': True}):
             with self.assertRaises(ValueError):
                 validate_intent(json.dumps(obj))
@@ -51,5 +50,30 @@ class ModelIntentBoundaryTests(TestCase):
     def test_outside_area_carries_no_location(self):
         obj = {'intent': 'outside_area', 'city': None, 'region_wide': False}
         self.assertEqual(validate_intent(json.dumps(obj)), obj)
-        with self.assertRaises(ValueError):
-            validate_intent(json.dumps({'intent': 'outside_area', 'city': None, 'region_wide': True}))
+        self.assertEqual(validate_intent(json.dumps({'intent': 'outside_area', 'city': None, 'region_wide': True})), obj)
+
+    def test_stray_location_on_other_intents_is_dropped_not_fatal(self):
+        # Observed live 26 Oct: {"intent": "organization_checklist", "city": null, "region_wide": true}
+        # used to reject the whole proposal.
+        for name in ('amount', 'organization_checklist', 'list_organizations', 'clarify'):
+            for city, region in (('Ottawa', False), (None, True)):
+                with self.subTest(name=name, city=city):
+                    self.assertEqual(validate_intent(json.dumps({'intent': name, 'city': city, 'region_wide': region})),
+                                     {'intent': name, 'city': None, 'region_wide': False})
+
+    def test_any_listed_ontario_city_is_accepted_and_normalized(self):
+        for given, expected in (('Guelph', 'Guelph'), ('guelph', 'Guelph'), ('HAMILTON', 'Hamilton'), ('Thunder Bay', 'Thunder Bay')):
+            with self.subTest(given=given):
+                self.assertEqual(validate_intent(json.dumps({'intent': 'discover', 'city': given, 'region_wide': False}))['city'], expected)
+        self.assertIn('Guelph', ONTARIO_CITIES)
+
+    def test_unknown_city_is_dropped_rather_than_trusted(self):
+        for given in ('Vancouver', 'Atlantis', '<script>', 'x'*80):
+            with self.subTest(given=given):
+                self.assertEqual(validate_intent(json.dumps({'intent': 'discover', 'city': given, 'region_wide': False})),
+                                 {'intent': 'discover', 'city': None, 'region_wide': False})
+
+    def test_new_request_types_accepted(self):
+        for name in ('list_organizations', 'about', 'donate_how', 'thanks'):
+            obj = {'intent': name, 'city': None, 'region_wide': False}
+            self.assertEqual(validate_intent(json.dumps(obj)), obj)
