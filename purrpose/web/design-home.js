@@ -2,9 +2,11 @@
 const api=createPurrposeClient();
 const form=document.getElementById('prompt'),box=document.getElementById('appeal');
 const send=document.getElementById('send'),notice=document.getElementById('notice');
-const host=document.getElementById('home-results');
-const session=crypto.randomUUID();
-let busy=false;
+const chatsBox=document.getElementById('chats'),chatList=document.getElementById('chat-list'),intro=document.getElementById('intro');
+const panel=document.getElementById('panel'),panelToggle=document.getElementById('panel-toggle');
+const views={review:document.getElementById('view-review'),map:document.getElementById('view-map')};
+const tabs={review:document.getElementById('tab-review'),map:document.getElementById('tab-map')};
+const chats=[];let current=null,busy=false,mapToken=0;
 const node=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 const picks=document.querySelectorAll('[data-pick]');
 function scheme(value){const warm=value==='warm';document.documentElement.dataset.scheme=warm?'warm':'cool';for(const p of picks)p.setAttribute('aria-pressed',String(p.dataset.pick===(warm?'warm':'cool')));for(const id of ['fav-ico','fav-svg'])document.getElementById(id).href=warm?'/design-favicon-warm.svg':'/design-favicon.svg';try{localStorage.setItem('purrpose-scheme',warm?'warm':'cool');}catch(_){}}
@@ -17,7 +19,7 @@ for(const chip of document.querySelectorAll('[data-text]'))chip.addEventListener
 function link(parent,label,url){try{const u=new URL(url);if(u.protocol!=='https:'||!['guelphhumane.ca','apps.cra-arc.gc.ca'].includes(u.hostname))return;const a=node('a',label);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';const p=node('p');p.append(a);parent.append(p);}catch(_){}}
 function action(parent,label,message){const b=node('button',label);b.type='button';b.addEventListener('click',()=>submit(message));parent.append(b);}
 function details(parent,label,value){const d=node('details');d.append(node('summary',label),node('pre',JSON.stringify(value,null,2)));parent.append(d);}
-function render(result){
+function render(result,host,chat){
  const a=node('article');a.append(node('p','Purrpose'),node('p',result.reply));
  if(result.results){const r=result.results;
   if(r.status==='needs_preference'){action(a,'Anywhere in Ontario','anywhere in Ontario');action(a,'Ottawa','Ottawa');action(a,'Toronto','Toronto');}
@@ -44,21 +46,80 @@ function render(result){
  }
  if(result.organization_review){for(const g of result.organization_review.gap_checklist){a.append(node('h2',g.what_to_add),node('p','Action for: '+g.responsible_party),node('p',g.why),node('p',g.where_to_obtain_or_publish));}a.append(node('p',result.organization_review.privacy_note),node('p',result.organization_review.guarantee));}
  if(result.research_history)details(a,'Retained review; not a current source check',result.research_history);
+ sourcesAndLimits(a,result);
+ if(result.agent_run&&result.agent_run.run_id){const b=node('button','See how this was worked out');b.type='button';b.className='run-link';b.addEventListener('click',()=>{if(current!==chat)open(chat);select(chat,result);openPanel('map');});a.append(b);}
  host.append(a);
 }
 async function submit(raw){
  const message=raw.trim();if(busy||!message)return;busy=true;sync();
  for(const b of document.querySelectorAll('.chip,.results button'))b.disabled=true;
- host.append(node('article','You: '+message));notice.textContent='Checking…';
+ const chat=current,host=chat.host;if(chat.title==='New chat'){chat.title=message.slice(0,32);drawList();}intro.hidden=true;
+ const you=node('article','You: '+message);you.className='you';host.append(you);notice.textContent='Checking…';
  try{
   let query=message;
   if(/^https?:\/\//i.test(message)){
    const known=['https://guelphhumane.ca/news/urgent-abandoned-in-a-box-and-pregnant-lucy-needs-your-help/','https://guelphhumane.ca/news/update-lucy-gave-birth-to-her-kittens-at-ghs/'];
-   if(!known.includes(message)){render({reply:'This prototype supports only the configured Lucy articles. This URL was not fetched. Try “I want to help a cat” or use the example request.'});notice.textContent='Unsupported URL; no source was fetched.';return;}
+   if(!known.includes(message)){render({reply:'This prototype supports only the configured Lucy articles. This URL was not fetched. Try “I want to help a cat” or use the example request.'},host,chat);notice.textContent='Unsupported URL; no source was fetched.';return;}
    query='Tell me about Lucy';
   }
-  const result=await api.chat(session,query);render(result);box.value='';const mi=result.model_intent;notice.textContent=(result.new_cloud_calls?`A configured model (${mi&&mi.route}) classified this message; code wrote the answer. `:mi&&mi.status==='cached'?'Reused an earlier model classification; no new cloud-model call. ':'No new cloud-model call. ')+'No payment. Source refresh happens only when explicitly requested.';
+  const result=await api.chat(chat.id,query);render(result,host,chat);chat.latest=result;if(current===chat)select(chat,result);host.lastElementChild.scrollIntoView({block:'nearest'});box.value='';const mi=result.model_intent;notice.textContent=(result.new_cloud_calls?`A configured model (${mi&&mi.route}) classified this message; code wrote the answer. `:mi&&mi.status==='cached'?'Reused an earlier model classification; no new cloud-model call. ':'No new cloud-model call. ')+'No payment. Source refresh happens only when explicitly requested.';
  }catch(error){notice.textContent=error.code==='timeout_result_unknown'?'The result is uncertain after a timeout. Backend work may still be running; do not automatically retry.':'The request did not complete. No new result is confirmed.';box.value=message;}
  finally{busy=false;for(const b of document.querySelectorAll('.chip,.results button'))b.disabled=false;sync();}
 }
-form.addEventListener('submit',e=>{e.preventDefault();submit(box.value);});sync();
+form.addEventListener('submit',e=>{e.preventDefault();submit(box.value);});
+function sourcesAndLimits(parent,result){
+ const d=node('details');d.className='sources-limits';d.append(node('summary','Sources & limits'));
+ const add=t=>{if(t)d.append(node('p',t));};
+ add(result.mode==='model_intent_validated'?'Your request was classified by a configured model; code wrote this answer.':'Your request was understood by bounded phrase matching; code wrote this answer.');
+ const r=result.research;if(r){for(const s of r.sources||[])link(d,s.publisher+' · '+s.published_on,s.url);for(const t of r.limitations||[])add(t);}
+ const q=result.results;if(q){for(const group of ['qualified','pending','no_current_gap'])for(const c of q[group]||[]){for(const s of c.evidence||[])link(d,s.publisher+' · '+s.source_date,s.reference);for(const t of c.limitations||[])add(t);}add(q.coverage);}
+ if(result.live_read&&result.live_read.error)add('Source read problem at '+result.live_read.stage+': '+result.live_read.error);
+ parent.append(d);
+}
+function drawList(){
+ chatList.replaceChildren();
+ for(const c of chats){const li=node('li');const b=node('button',c.title);b.type='button';b.setAttribute('aria-current',String(c===current));b.addEventListener('click',()=>open(c));li.append(b);chatList.append(li);}
+}
+function open(chat){
+ current=chat;for(const c of chats)c.host.hidden=c!==chat;
+ intro.hidden=chat.host.childElementCount>0;drawList();select(chat,chat.latest||null);
+}
+function newChat(){
+ const host=node('section');host.className='results';host.setAttribute('role','log');host.setAttribute('aria-live','polite');host.setAttribute('aria-label','Conversation');
+ chatsBox.append(host);const chat={id:crypto.randomUUID(),title:'New chat',host,latest:null};chats.push(chat);open(chat);box.focus();
+}
+document.getElementById('new-chat').addEventListener('click',()=>{if(!busy)newChat();});
+/* Right-hand panel */
+function openPanel(name){
+ for(const k of Object.keys(tabs)){const on=k===name;tabs[k].setAttribute('aria-selected',String(on));tabs[k].tabIndex=on?0:-1;views[k].hidden=!on;}
+ panel.classList.add('open');panelToggle.setAttribute('aria-expanded','true');
+}
+function closePanel(){panel.classList.remove('open');panelToggle.setAttribute('aria-expanded','false');}
+for(const k of Object.keys(tabs))tabs[k].addEventListener('click',()=>openPanel(k));
+document.querySelector('.tabs').addEventListener('keydown',e=>{
+ if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();
+ const order=Object.keys(tabs),at=order.findIndex(k=>tabs[k].getAttribute('aria-selected')==='true');
+ const next=e.key==='Home'?0:e.key==='End'?order.length-1:(at+(e.key==='ArrowRight'?1:order.length-1))%order.length;
+ openPanel(order[next]);tabs[order[next]].focus();
+});
+panelToggle.addEventListener('click',()=>panel.classList.contains('open')?closePanel():openPanel(tabs.map.getAttribute('aria-selected')==='true'?'map':'review'));
+document.getElementById('panel-close').addEventListener('click',closePanel);
+async function select(chat,result){
+ const token=++mapToken,box=views.map;
+ if(!result||!result.agent_run){box.replaceChildren(node('p','Ask a question to see which agents ran.')) ;box.firstChild.className='empty';showReview(chat,null);return;}
+ showReview(chat,result);
+ const agentRun=result.agent_run;let run=null,note=agentRun;
+ if(agentRun.run_id){
+  try{run=await api.run(agentRun.run_id);}catch(_){run=null;note={...agentRun,note:'Run details could not be loaded.'};}
+  if(run&&run.status==='run_not_found'){run=null;note={...agentRun,note:'This run is no longer stored: runs are kept in memory, the last 50 only, and cleared on restart.'};}
+ }
+ if(token!==mapToken)return;
+ renderAgentMap(box,buildMapModel(run,note));
+}
+function showReview(chat,result){
+ const box=views.review;
+ const model=result&&typeof buildReviewModel==='function'?buildReviewModel(result):null;
+ if(model&&typeof renderReview==='function'){renderReview(box,model,{link});return;}
+ const empty=node('p','Ask about a case to see its review.');empty.className='empty';box.replaceChildren(empty);
+}
+newChat();sync();

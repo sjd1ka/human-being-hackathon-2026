@@ -11,7 +11,7 @@ ROOT = Path(__file__).parent
 
 def inspect_environment(reference=None, node='node'):
     python_ok = sys.version_info >= (3,12)
-    assets = ['web/index.html','web/app.js','web/app.css','web/api-client.js',
+    assets = ['web/index.html','web/app.js','web/app.css','web/api-client.js','web/agent-map.js',
               'web/research.html','web/research.js','fixtures/maple.json','hmem-bridge.mjs',
               'web/design-home.html','web/design-home.css','web/design-home.js',
               'web/design-favicon.svg','web/design-favicon-warm.svg',

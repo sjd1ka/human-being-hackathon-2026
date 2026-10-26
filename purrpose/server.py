@@ -214,6 +214,7 @@ def handler_for(app):
                      '/design-favicon-warm.svg': ('design-favicon-warm.svg', 'image/svg+xml'),
                      '/research.html': ('research.html', 'text/html; charset=utf-8'),
                      '/research.js': ('research.js', 'text/javascript; charset=utf-8'),
+                     '/agent-map.js': ('agent-map.js', 'text/javascript; charset=utf-8'),
                      '/api-client.js': ('api-client.js', 'text/javascript; charset=utf-8'),
                      '/app.js': ('app.js', 'text/javascript; charset=utf-8'),
                      '/app.css': ('app.css', 'text/css; charset=utf-8')}
