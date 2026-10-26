@@ -1,6 +1,7 @@
 """Bounded code-role review of real observations; no real qualification path."""
 from copy import deepcopy
 from datetime import datetime, timezone
+import time
 from uuid import uuid4
 from .memory import MemoryUnavailable, fingerprint
 from .research_case import assess_saved_research
@@ -11,19 +12,27 @@ PROFILE = 'real-observation-review-v1'
 
 
 def review_real_observations(read, memory=None):
-    trace = []
+    trace, tools = [], []
+    start = time.monotonic()
+    def elapsed_ms():
+        return int((time.monotonic()-start)*1000)
     def event(role, action, **details):
-        trace.append({'role': role, 'action': action, **details})
+        trace.append({'role': role, 'action': action, 'at_ms': elapsed_ms(), **details})
     dossier = assess_saved_research()
     prior = None
     memory_status = 'not_configured'
     if memory:
+        began = time.monotonic()
         try:
             entries = memory.call('recall', CASE_ID)['entries']
             prior = next((e for e in entries if e['payload'].get('policy_profile') == PROFILE), None)
             memory_status = 'recalled'
         except MemoryUnavailable:
             memory_status = 'recall_failed'
+        tools.append({'tool': 'hmem', 'operation': 'recall', 'status': 'failed' if memory_status == 'recall_failed' else 'ok',
+                      'duration_ms': int((time.monotonic()-began)*1000), 'memory_id': prior['memory_id'] if prior else None})
+    else:
+        tools.append({'tool': 'hmem', 'operation': 'recall', 'status': 'not_configured', 'duration_ms': 0, 'memory_id': None})
     previous_gaps = prior['payload'].get('open_issues', []) if prior else []
     event('coordinator', 'resume_gaps' if prior else 'start_review', prior_issues=previous_gaps)
     previous = prior['payload'] if prior else {}
@@ -89,11 +98,18 @@ def review_real_observations(read, memory=None):
                                         'status': s['status'], 'observed_at': read.get('observed_at')}
                                        for s in read.get('sources', [])],
                    'risk_hold': bool(previous.get('risk_hold', False))}
+        began = time.monotonic()
         try:
             saved = memory.call('save', CASE_ID, payload)
             result['memory'].update(status='saved', saved_memory_id=saved['memory_id'])
+            tools.append({'tool': 'hmem', 'operation': 'save', 'status': 'ok',
+                          'duration_ms': int((time.monotonic()-began)*1000), 'memory_id': saved['memory_id']})
         except MemoryUnavailable:
             result['memory']['status'] = 'save_failed'
+            tools.append({'tool': 'hmem', 'operation': 'save', 'status': 'failed',
+                          'duration_ms': int((time.monotonic()-began)*1000), 'memory_id': None})
     if memory and result['memory']['status'] in ('recall_failed', 'save_failed'):
         result['status'] = 'review_incomplete'
+    result['tools'] = tools
+    result['duration_ms'] = elapsed_ms()
     return result

@@ -42,6 +42,34 @@ class RealReviewTests(TestCase):
         self.assertEqual(result['status'],'review_incomplete')
         self.assertEqual(result['memory']['status'],'recall_failed')
 
+    def test_steps_are_timed_in_order(self):
+        trace=review_real_observations(observed())['trace']
+        self.assertTrue(all(type(e['at_ms']) is int for e in trace))
+        times=[e['at_ms'] for e in trace]
+        self.assertEqual(times,sorted(times))
+
+    def test_tools_without_memory_report_not_configured(self):
+        result=review_real_observations(observed())
+        self.assertEqual(result['tools'],[{'tool':'hmem','operation':'recall','status':'not_configured','duration_ms':0,'memory_id':None}])
+        self.assertIsInstance(result['duration_ms'],int)
+
+    def test_memory_failure_is_a_failed_tool_event(self):
+        class Failed:
+            def call(self,*args): raise MemoryUnavailable()
+        result=review_real_observations(observed(),Failed())
+        self.assertEqual(result['tools'][0]['status'],'failed')
+        self.assertEqual(result['tools'][0]['operation'],'recall')
+        self.assertEqual(result['status'],'review_incomplete')
+
+    def test_save_failure_is_a_failed_tool_event(self):
+        class SaveFails:
+            def call(self,op,*args):
+                if op=='recall': return {'entries':[]}
+                raise MemoryUnavailable()
+        result=review_real_observations(observed(),SaveFails())
+        self.assertEqual([(t['operation'],t['status']) for t in result['tools']],[('recall','ok'),('save','failed')])
+        self.assertEqual(result['status'],'review_incomplete')
+
 
 @skipUnless(os.environ.get('PURRPOSE_HMEM_REFERENCE'),'Official H-MEM reference required')
 class RealReviewMemoryTests(TestCase):
