@@ -31,7 +31,9 @@
       feedback:(data)=>request('/api/feedback',data),
       history:(cutoff=null)=>request('/api/history',{cutoff}),
       demoUpdate:(action,requestId)=>request('/api/update',{action,request_id:requestId}),
-      debug:()=>request('/api/debug',{})
+      debug:()=>request('/api/debug',{}),
+      runs:()=>request('/api/runs',{}),
+      run:(runId)=>request('/api/runs/get',{run_id:runId})
     });
   }
   if(typeof module!=='undefined' && module.exports) module.exports={createPurrposeClient,PurrposeApiError};

@@ -117,6 +117,33 @@ class LocalServerTests(TestCase):
         self.assertTrue(debug['latest_run']['trace'])
         self.assertEqual(debug['new_cloud_calls'], 0)
 
+    def test_runs_endpoints_list_and_get(self):
+        run_id = self.app.runs.add({'case_id': 'REAL-LUCY-GHS', 'case_name': 'Lucy', 'status': 'pending_evidence',
+                                    'scenario_type': 'real_public_observations',
+                                    'trace': [{'role': 'coordinator', 'action': 'start_review', 'at_ms': 0}]},
+                                   kind='real', started_at=1.0, ended_at=2.0, tools=[])
+        listed = self.request('/api/runs', {})[1]
+        self.assertEqual([r['run_id'] for r in listed['runs']], [run_id])
+        self.assertIn('cleared on restart', listed['scope'])
+        run = self.request('/api/runs/get', {'run_id': run_id})[1]
+        self.assertEqual(run['steps'][0]['agent'], 'orchestrator')
+        self.assertEqual(self.request('/api/runs/get', {'run_id': 'nope'})[1]['status'], 'run_not_found')
+
+    def test_runs_endpoints_keep_request_guards(self):
+        self.assertEqual(self.request('/api/runs', {}, {'X-Purrpose-Local': ''})[1], {'error': 'local_request_required'})
+        self.assertEqual(self.request('/api/runs', {}, {'X-Purrpose-Local': ''})[0], 403)
+        self.assertEqual(self.request('/api/runs', {'extra': 1})[0], 400)
+        self.assertEqual(self.request('/api/runs/get', {'run_id': 5})[0], 400)
+        self.assertEqual(self.request('/api/runs/get', {})[0], 400)
+
+    def test_fictional_review_is_recorded_as_fictional_run(self):
+        self.request('/api/supporter', {'city': 'Ottawa'})
+        runs = self.request('/api/runs', {})[1]['runs']
+        self.assertEqual([(r['kind'], r['scenario_type']) for r in runs], [('fictional', 'synthetic')])
+        run = self.request('/api/runs/get', {'run_id': runs[0]['run_id']})[1]
+        self.assertTrue(run['steps'])
+        self.assertTrue(all(type(s['at_ms']) is int and s['at_ms'] >= 0 for s in run['steps']))
+
 
 if __name__ == '__main__':
     main()

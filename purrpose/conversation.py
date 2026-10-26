@@ -49,6 +49,34 @@ class Conversation:
         self.model = ModelIntent(model) if model else None
 
     def reply(self, session_id, message):
+        self.app.turn = {'run_id': None, 'reused_read': False}
+        result = self.answer(session_id, message)
+        turn = self.app.turn
+        if turn['run_id']:
+            self.app.runs.tag_session(turn['run_id'], session_id)
+            note = 'New review run'
+        elif turn['reused_read']:
+            note = 'Reused a recent source read; no new run'
+        else:
+            note = 'Answered from saved results; no agents ran'
+        result['agent_run'] = {'run_id': turn['run_id'], 'note': note, 'model': self.model_info(result)}
+        return result
+
+    def model_info(self, result):
+        info = result.get('model_intent')
+        if not info:
+            return None
+        calls = info.get('new_cloud_calls', 0)
+        tokens = None
+        if calls > 0:
+            trace = getattr(getattr(self.model, 'provider', None), 'trace', None) or []
+            usage = trace[-1].get('usage') if trace else None
+            total = usage.get('total_tokens') if isinstance(usage, dict) else None
+            tokens = total if type(total) is int else None
+        return {'route': info.get('route'), 'status': info.get('status'), 'intent': info.get('intent'),
+                'new_cloud_calls': calls, 'total_tokens': tokens}
+
+    def answer(self, session_id, message):
         if (not isinstance(session_id, str) or not re.fullmatch(r'[A-Za-z0-9-]{1,80}', session_id)
                 or not isinstance(message, str) or not 1 <= len(message.strip()) <= 1500):
             raise ValueError('Bounded session and message required')

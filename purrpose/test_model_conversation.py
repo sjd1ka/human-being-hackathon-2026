@@ -155,3 +155,31 @@ class ModelConversationTests(TestCase):
         self.say('hello', intent('greet'))
         answer = self.say('yes', intent('confirm_expansion'))
         self.assertNotIn('results', answer)
+
+
+class AgentRunModelTests(TestCase):
+    def setUp(self):
+        self.provider = FakeProvider()
+        self.provider.trace = []
+        self.app = LocalApp(model=self.provider)
+
+    def say(self, text, *replies):
+        self.provider.replies.extend(replies)
+        return self.app.dispatch('/api/chat', {'session_id': 'one', 'message': text})
+
+    def test_model_info_reports_tokens_only_when_a_call_happened(self):
+        self.provider.trace.append({'usage': {'total_tokens': 77}, 'status': 'success'})
+        answer = self.say('hello there friend', intent('greet'))
+        model = answer['agent_run']['model']
+        self.assertEqual((model['route'], model['status'], model['new_cloud_calls'], model['total_tokens']),
+                         ('nvidia_direct', 'used', 1, 77))
+        cached = self.say('hello there friend', intent('greet'))
+        self.assertEqual(cached['agent_run']['model']['new_cloud_calls'], 0)
+        self.assertIsNone(cached['agent_run']['model']['total_tokens'])
+
+    def test_failed_model_call_has_no_tokens(self):
+        from .provider import ProviderError
+        answer = self.say('hello there friend', ProviderError('provider_timeout'))
+        model = answer['agent_run']['model']
+        self.assertEqual(model['status'], 'failed')
+        self.assertIsNone(model['total_tokens'])

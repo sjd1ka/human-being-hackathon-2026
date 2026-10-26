@@ -77,3 +77,37 @@ class RealResearchChatTests(TestCase):
         self.assertEqual(result['results']['collection'],'real')
         self.assertEqual(result['results']['status'],'no_city_match')
         self.assertIsNone(self.app.latest_run)
+
+    def test_refresh_reports_run_and_cached_read_does_not(self):
+        with patch('purrpose.server.bounded_read',return_value={'status':'read_complete','sources':[]}):
+            first=self.say('refresh Lucy')
+            self.assertIsNotNone(first['agent_run']['run_id'])
+            self.assertEqual(first['agent_run']['note'],'New review run')
+            self.assertEqual(first['live_read']['run_id'],first['agent_run']['run_id'])
+            second=self.say('refresh Lucy')
+            self.assertIsNone(second['agent_run']['run_id'])
+            self.assertEqual(second['agent_run']['note'],'Reused a recent source read; no new run')
+            self.assertEqual(len(self.app.runs.summaries()),1)
+            summary=self.app.runs.summaries()[0]
+            self.assertEqual(summary['kind'],'real')
+            self.assertEqual(summary['session_label'],'one')
+
+    def test_plain_follow_up_has_no_run(self):
+        self.say('Lucy')
+        answer=self.say('Lucy what evidence is missing?')
+        self.assertEqual(answer['agent_run'],{'run_id':None,'note':'Answered from saved results; no agents ran','model':None})
+        self.assertEqual(self.app.runs.summaries(),[])
+
+    def test_fictional_chat_answer_reports_fictional_run(self):
+        self.say('fictional Ottawa')
+        answer=self.say('How much?')
+        self.assertEqual(answer['agent_run']['note'],'New review run')
+        run=self.app.runs.get(answer['agent_run']['run_id'])
+        self.assertEqual(run['kind'],'fictional')
+
+    def test_failed_read_still_records_run_with_tool_row(self):
+        with patch('purrpose.server.bounded_read',return_value={'status':'read_incomplete','sources':[],'stage':'robots','error':'network_or_timeout'}):
+            answer=self.say('refresh Lucy')
+        run=self.app.runs.get(answer['agent_run']['run_id'])
+        self.assertEqual(run['tools'][0]['status'],'not_configured')
+        self.assertEqual(run['status'],'source_check_incomplete')

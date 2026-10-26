@@ -5,6 +5,7 @@ import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
+from datetime import datetime
 from pathlib import Path
 
 from .__main__ import load_scenario
@@ -21,6 +22,7 @@ from .organization_research import organization_research, LINKS as REAL_LINKS
 from .real_discovery import discover_real
 from .feedback import Feedback
 from .provider import from_settings, read_settings
+from .runs import RunStore
 
 PUBLIC_LINK = 'https://example.invalid/purrpose/maple'
 FUNDING_LINK = PUBLIC_LINK+'/funding'
@@ -43,6 +45,8 @@ class LocalApp:
         self.public_read_cache = None
         self.public_read_at = 0
         self.real_latest_run = None
+        self.runs = RunStore()
+        self.turn = {'run_id': None, 'reused_read': False}
 
     def read_fixture(self, url):
         if self.source_outage:
@@ -68,13 +72,20 @@ class LocalApp:
         if journeys.runs:
             self.latest_run = deepcopy(list(journeys.runs.values())[-1])
             self.service.last_review = deepcopy(self.latest_run)
+            for review in journeys.runs.values():
+                stamps = [datetime.fromisoformat(e['recorded_at']).timestamp()
+                          for e in review.get('trace', []) if e.get('recorded_at')]
+                started = min(stamps) if stamps else time.time()
+                # Synthetic fixture runs: recorded_at stamps give real step offsets.
+                self.turn['run_id'] = self.runs.add(review, kind='fictional', started_at=started,
+                                                    ended_at=max(stamps) if stamps else started, tools=[])
 
     def dispatch(self, path, data):
         allowed = {'/api/supporter': {'city', 'region_wide', 'allow_expansion', 'collection'},
                    '/api/organization': {'public_links'}, '/api/update': {'action', 'request_id'},
                    '/api/history': {'cutoff'}, '/api/debug': set(),
                    '/api/chat': {'session_id', 'message'}, '/api/research': set(), '/api/research/read': set(),
-                   '/api/research/history': {'cutoff'},
+                   '/api/research/history': {'cutoff'}, '/api/runs': set(), '/api/runs/get': {'run_id'},
                    '/api/feedback': {'session_id','request_id','kind','message','city'}}
         if path not in allowed:
             raise ValueError('Unknown operation')
@@ -82,6 +93,12 @@ class LocalApp:
             raise ValueError('Unsupported request fields')
         if path == '/api/feedback':
             return self.feedback.submit(**data)
+        if path == '/api/runs':
+            return {'runs': self.runs.summaries(), 'scope': 'Runs since this server started; cleared on restart.'}
+        if path == '/api/runs/get':
+            if not isinstance(data.get('run_id'), str):
+                raise ValueError('Run ID required')
+            return self.runs.get(data['run_id'])
         if path == '/api/research':
             return assess_saved_research()
         if path == '/api/research/history':
@@ -90,10 +107,16 @@ class LocalApp:
             return history_from_memory(self.memory, REAL_CASE_ID, data.get('cutoff'))
         if path == '/api/research/read':
             if self.public_read_cache is not None and time.monotonic()-self.public_read_at < 60:
+                self.turn['reused_read'] = True
                 return {**deepcopy(self.public_read_cache), 'cached': True}
             self.public_read_cache = bounded_read()
             self.public_read_cache['analysis'] = analyze_read(self.public_read_cache)
+            started = time.time()
             self.real_latest_run = review_real_observations(self.public_read_cache, self.memory)
+            run_id = self.runs.add(self.real_latest_run, kind='real', started_at=started, ended_at=time.time(),
+                                   tools=self.real_latest_run.get('tools', []))
+            self.turn['run_id'] = run_id
+            self.public_read_cache['run_id'] = run_id
             self.public_read_cache['review'] = {k: deepcopy(v) for k, v in self.real_latest_run.items() if k != 'trace'}
             self.public_read_at = time.monotonic()
             return {**deepcopy(self.public_read_cache), 'cached': False}
