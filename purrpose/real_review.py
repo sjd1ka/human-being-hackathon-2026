@@ -71,7 +71,7 @@ def review_real_observations(read, memory=None):
                'stop_reason': 'real_case_evidence_incomplete',
                'funding_notice': 'No validated case cost or raised total; remainder unknown.'}
     run_id = str(uuid4())
-    result = {'case_id': CASE_ID, 'run_id': run_id, 'scenario_type': 'real_public_observations',
+    result = {'case_id': CASE_ID, 'case_name': dossier['case_name'], 'run_id': run_id, 'scenario_type': 'real_public_observations',
               'status': summary['disposition'], 'qualified': False, 'remaining_minor': None,
               'latest_retrieved_statement': latest if complete else None,
               'current_real_world_state_confirmed': False,

@@ -6,6 +6,8 @@ Shared workspace for our Open Agent Hackathon 2026 ideas, mentor feedback and ev
 
 ## How Purrpose works
 
+Run `python -m purrpose.server`, open `/home.html` for the chat with its **Review** and **Agent map** tabs, and `/dashboard.html` for every run since the server started (details in [purrpose/FRONTEND_INTEGRATION.md](purrpose/FRONTEND_INTEGRATION.md)).
+
 ```mermaid
 flowchart LR
   donor(["Donor asks in the chat"]) --> orch

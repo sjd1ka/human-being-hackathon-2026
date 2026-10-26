@@ -80,6 +80,9 @@ Read root START_HERE.md, current HANDOFF.md and the normative first draft/guidan
 
 Open http://127.0.0.1:8766/home.html for the connected adaptation of Josh's actual upstream home/logo design. The original full demo workspace remains at `/`. See DESIGN_INTEGRATION.md for source commit, modifications and test evidence. No fake authentication or arbitrary/social-page retrieval is implied by this design.
 
+### Chat, Review tab, Agent map and run dashboard
+`/home.html` is a chat (this visit's chats only, nothing saved) with a right-hand panel. **Review** shows the case from backend fields only; **Agent map** shows which code roles ran for an answer, timings, and the tool row (NVIDIA Nemotron only when a call really happened, H-MEM, Zetaris and Nightshift marked not connected). `/dashboard.html` lists the last 50 runs since the server started (cleared on restart). More checks: `node purrpose/test_agent_map.cjs`, `node purrpose/test_review_panel.cjs`.
+
 ### Organization walkthrough
 Open `/organizations.html` (also linked as **I’m a rescue organization** on the designed home). This is a fully fictional, no-installation walkthrough served by the local app. It shows what public evidence an organization should add, how it publishes on its own website, and how a later recheck affects the supporter view. All data and recheck results are simulated; independent verification remains pending. No APIs, models, uploads or payments are used by this page. The existing real Lucy checklist is linked separately.
 

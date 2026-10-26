@@ -188,3 +188,16 @@ Branch `feature/model-intent-provider`. New `provider.py` (explicit `nvidia_dire
 Actual checks: 210 tests ran, 200 passed, 10 skipped (H-MEM reference not configured on this machine); API client checks passed. Live direct NVIDIA (`nvidia/nemotron-3.5-lightning-30b-a3b`) on the account owner's own key with owner-approved caps: 27 development calls, 10,068 tokens recorded for 24 (3 unrecorded); final 8-message run 7/7 intents validated and correct, override attempt made no call; organization and geography/fictional fixes re-verified live; browser home chat verified. Details and cap sources: `purrpose/MODEL_PROVIDER_VERIFICATION.md`.
 
 Not done: Nightshift remains unconnected (direct NVIDIA ≠ Nightshift); the Meterless route is tested only offline; the 65 s UI deadline is shorter than the 180 s Meterless load timeout; unified dual-intent chat (NEXT_DEVELOPER priority) is still open and can build on this intent boundary. Not yet pushed.
+
+## Chat review panel, Agent map and run dashboard (26 October 2026)
+
+Branch `feature/agent-map`, executed from `docs/superpowers/plans/2026-10-26-chat-review-agent-map.md`.
+
+Changed: `runs.py` (bounded in-memory run store, 50 runs, role to agent mapping); `real_review.py` (`at_ms` per step, `tools` H-MEM events, `duration_ms`, `case_name`); `server.py` (`/api/runs`, `/api/runs/get`, real and fictional runs recorded, new routes); `conversation.py` (every chat answer carries `agent_run`, session tagging); web: `agent-map.js`, `review-panel.js`, `dashboard.*`, reworked `design-home.*` (sidebar of this visit's chats, Review/Agent map tabs, phone sheet), `fixtures/chat-samples.json`.
+
+Actual checks (this cloud machine: Python 3.13.17, Node 22, not the 3.12/Node 24 used earlier): 232 Python tests ran, 222 passed, 10 skipped (H-MEM reference not configured here, so H-MEM paths are untested on this machine; the H-MEM failure rows are covered with stubs only); `test_api_client.cjs`, `test_agent_map.cjs`, `test_review_panel.cjs` pass. Safety grep: no `innerHTML` in the new scripts; `localStorage` only for the existing colour-scheme preference. Browser check with Playwright Chromium against a local server with no model key: chat, run link, Agent map, Review tab, second refresh saying the read was reused, fictional run labelled "Fictional example", dashboard list and detail, no page errors, no horizontal scroll at 390 px.
+
+Real versus mock: in this cloud session the two Guelph articles could not be fetched (`read_incomplete`, robots stage), so the real run recorded was the incomplete-read path; a fully successful live read was not seen. Step durations are near 0 ms because the code roles are local and fast; the map shows what was recorded. NVIDIA tokens were checked only with a stub provider; no NVIDIA call was made. The `impeccable` design skill was not available in this session, so no separate polish pass was run; visual checks were by screenshot.
+
+Next: run the same flow on a machine with network and H-MEM configured; Zetaris and Nightshift rows remain "not connected".
+

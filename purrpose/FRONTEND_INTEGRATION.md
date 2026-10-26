@@ -37,6 +37,8 @@ All POST requests require JSON Content-Type, `X-Purrpose-Local: 1`, own origin, 
 | POST /api/history | history(cutoff) | cutoff:null or ISO datetime with timezone | status=recorded_review/partial_legacy_record/history_unavailable |
 | POST /api/update | demoUpdate(action,requestId) | action:clarify/more_funds/fully_funded/source_outage; request_id:1–100 characters | status, optional review, update_events, idempotent_replay |
 | POST /api/debug | debug() | {} | latest_run, update_events, model_trace (sanitized: no keys, message text or reasoning), new_cloud_calls |
+| POST /api/runs | runs() | {} | runs (newest first: run_id, kind real/fictional, scenario_type, case_id, case_name, status, started_at, duration_ms, session_label), scope |
+| POST /api/runs/get | run(runId) | run_id:string | full run (steps with agent, role, action, at_ms, details; tools; agents) or `{status:'run_not_found'}` |
 
 Update and debug are **demo/developer controls**, not normal donor features. `/api/update` changes a synthetic funding source; it does not accept real organization updates. Source notifications exist as a backend fixture capability, not an arbitrary public URL fetch endpoint.
 
@@ -71,6 +73,12 @@ Render `gap_checklist` entries: what_to_add, why, where_to_obtain_or_publish, ne
 Chat is bounded bilingual intent matching, not a connected general model. `results`, if present, uses the supporter contract. Keep response prose and evidence together. Session state is process-local, max100 sessions; browser chat IDs are not login credentials. Preferences are not a permanent donor profile. Current case evidence is shared by this demo; conversations have separate selections. Do not use this as a multi-user production design.
 
 A history result is what the system had recorded at its actual system_recorded_at time. source_review_date is distinct. `recorded_result` can be null for partial legacy records; do not reconstruct it using current data. A 200 history_unavailable is a normal application state. No H-MEM configuration yields unavailable; configured-memory failure yields HTTP503. Latest means latest retained review, not a new real-web check.
+
+### Runs, the Agent map and the Review tab
+
+`/home.html` is a chat with a right-hand panel; `/dashboard.html` lists runs. The run store (`purrpose/runs.py`) is process memory only: the last 50 runs, newest first, cleared on restart, never written to disk. A run is recorded when a new real review runs (`/api/research/read`, not on a cached read) or a fictional review runs (`remember_run`). Every `/api/chat` response carries `agent_run`: `{run_id, note, model}`. `note` is `New review run`, `Reused a recent source read; no new run`, or `Answered from saved results; no agents ran`. `model` is null without a configured model, else `{route, status, intent, new_cloud_calls, total_tokens}`; `total_tokens` is set only when `new_cloud_calls > 0` for that turn. Agents are code roles (coordinator, collector, evaluator, resolver) in one process; tokens are never shown per agent.
+
+`/agent-map.js` (`buildMapModel`, `renderAgentMap`) and `/review-panel.js` (`buildReviewModel`, `renderReview`) are pure view models over backend fields, rendered with `textContent` only. Review statuses: `Information available` (only a qualified fictional case), `More information needed`, `Unable to assess`. Missing funding figures read `Not stated`, never 0. `purrpose/fixtures/chat-samples.json` holds trimmed real chat responses used by `test_review_panel.cjs`; a Python test checks their shape against the live backend.
 
 ## Loading and failure behavior
 
