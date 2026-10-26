@@ -55,6 +55,10 @@ class LocalServerTests(TestCase):
         self.assertNotIn('<script>',page)
         self.assertNotIn('Sign in',page)
         self.assertEqual(self.request('/design-home.js')[0],200)
+        self.assertEqual(self.request('/agent-map.js')[0],200)
+        self.assertEqual(self.request('/review-panel.js')[0],200)
+        for name in ('/api-client.js','/agent-map.js','/review-panel.js','/design-home.js'):
+            self.assertIn('src="'+name+'"',page)
         self.assertEqual(self.request('/design-home.css')[0],200)
         self.assertEqual(self.request('/design-favicon.svg')[0],200)
 

@@ -215,6 +215,7 @@ def handler_for(app):
                      '/research.html': ('research.html', 'text/html; charset=utf-8'),
                      '/research.js': ('research.js', 'text/javascript; charset=utf-8'),
                      '/agent-map.js': ('agent-map.js', 'text/javascript; charset=utf-8'),
+                     '/review-panel.js': ('review-panel.js', 'text/javascript; charset=utf-8'),
                      '/api-client.js': ('api-client.js', 'text/javascript; charset=utf-8'),
                      '/app.js': ('app.js', 'text/javascript; charset=utf-8'),
                      '/app.css': ('app.css', 'text/css; charset=utf-8')}

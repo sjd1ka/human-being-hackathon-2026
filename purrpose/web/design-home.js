@@ -33,9 +33,6 @@ function render(result,host,chat){
  }
  if(result.research){const d=result.research;a.append(node('h2',d.organization_display_name+' — '+d.case_name),node('p','Pending verification · remaining amount unknown'));
   for(const s of d.sources)link(a,s.publisher+' · '+s.published_on,s.url);
-  details(a,'Saved official identity observation',d.official_identity_observation);
-  details(a,'Saved published allocation statement',d.external_form_observation);
-  details(a,'Unresolved checks',d.gates);
   action(a,'What is still missing?','Lucy what evidence is missing?');action(a,'Refresh the two articles','refresh Lucy');action(a,'Read saved review','Lucy history');
  }
  if(result.live_read){const live=result.live_read;a.append(node('p','Source read: '+live.status+' · '+(live.observed_at||'no confirmed time')+(live.cached?' · cached recent attempt':'')));
@@ -44,8 +41,9 @@ function render(result,host,chat){
   if(live.review)a.append(node('p','Review: '+live.review.status+' · H-MEM: '+live.review.memory.status));
   if(live.analysis)details(a,'Source-linked candidate statements; not proof',live.analysis);
  }
- if(result.organization_review){for(const g of result.organization_review.gap_checklist){a.append(node('h2',g.what_to_add),node('p','Action for: '+g.responsible_party),node('p',g.why),node('p',g.where_to_obtain_or_publish));}a.append(node('p',result.organization_review.privacy_note),node('p',result.organization_review.guarantee));}
+ if(result.organization_review)a.append(node('p','Here is the public-information checklist. Open the Review tab to see each item.'));
  if(result.research_history)details(a,'Retained review; not a current source check',result.research_history);
+ if(typeof buildReviewModel==='function'&&buildReviewModel(result)){const r=node('button','Open review');r.type='button';r.className='run-link';r.addEventListener('click',()=>{if(current!==chat)open(chat);select(chat,result);openPanel('review');});a.append(r);}
  sourcesAndLimits(a,result);
  if(result.agent_run&&result.agent_run.run_id){const b=node('button','See how this was worked out');b.type='button';b.className='run-link';b.addEventListener('click',()=>{if(current!==chat)open(chat);select(chat,result);openPanel('map');});a.append(b);}
  host.append(a);

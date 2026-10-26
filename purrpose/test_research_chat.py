@@ -111,3 +111,16 @@ class RealResearchChatTests(TestCase):
         run=self.app.runs.get(answer['agent_run']['run_id'])
         self.assertEqual(run['tools'][0]['status'],'not_configured')
         self.assertEqual(run['status'],'source_check_incomplete')
+
+    def test_review_panel_fixture_matches_backend_shape(self):
+        import json
+        from pathlib import Path
+        samples=json.loads((Path(__file__).parent/'fixtures'/'chat-samples.json').read_text(encoding='utf-8'))
+        live=self.say('Tell me about Lucy')
+        self.assertEqual(set(samples['lucy']['research']),set(live['research']))
+        self.assertEqual(set(samples['organization']['organization_review']),
+                         set(self.say('Lucy organization checklist')['organization_review']))
+        self.say('fictional Ottawa','two')
+        fictional=self.say('fictional Ottawa','two')['results']['pending'][0]
+        self.assertEqual(set(samples['fictional_pending']['results']['pending'][0]),set(fictional))
+

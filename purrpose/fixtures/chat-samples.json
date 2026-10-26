@@ -1,0 +1,472 @@
+{
+ "lucy": {
+  "reply": "Saved research: the organization reports Lucy gave birth to three kittens. A manual CRA review found the registered organization; case medical/funding and risk checks remain incomplete. This is a pending lead, not a qualified recommendation. These findings were observed on 24 October 2026; this chat did not fetch sources again. Say “refresh Lucy” to check the two configured articles.",
+  "mode": "bounded_intent_matching",
+  "new_cloud_calls": 0,
+  "research": {
+   "case_id": "research-lucy-ghs",
+   "organization_display_name": "Guelph Humane Society",
+   "legal_name_verified": false,
+   "case_name": "Lucy and her kittens",
+   "external_form_observation": {
+    "title": "Lucy - Emergency Appeal - October 2026",
+    "observed_on": "2026-10-24",
+    "method": "manual_browser_read_only",
+    "allocation_reported": "If appeal donations exceed care costs, surplus supports other animals arriving at GHS.",
+    "case_cost_minor": null,
+    "raised_minor": null,
+    "remaining_minor": null,
+    "recipient_settlement_verified": false,
+    "payment_submitted": false,
+    "note": "Visible gift options are donation choices, not a cost, target or funding gap. Earlier research-tool cache miss is retained as attempt history, not current page availability."
+   },
+   "official_identity_observation": {
+    "legal_name": "THE GUELPH HUMANE SOCIETY INCORPORATED",
+    "registration_number": "119236305RR0001",
+    "status_displayed": "Registered",
+    "website_displayed": "https://guelphhumane.ca",
+    "observed_on": "2026-10-24",
+    "source_url": "https://apps.cra-arc.gc.ca/ebci/hacc/srch/pub/dsplyRprtngPrd/119236305RR0001",
+    "method": "manual_official_browser_review",
+    "rechecked_now": false,
+    "note": "Saved official observation; legal_name_verified above remains false for runtime verification. Case geography and full identity gate are incomplete."
+   },
+   "mode": "saved_manual_research",
+   "status": "pending_verification",
+   "qualified": false,
+   "remaining_minor": null,
+   "currency": "CAD",
+   "assessment_date": "2026-10-26",
+   "source_observed_on": "2026-10-24",
+   "latest_reported_state": "Organization reports Lucy gave birth to three kittens at GHS.",
+   "latest_statement_source_id": "lucy-update",
+   "sources": [
+    {
+     "source_id": "lucy-appeal",
+     "publisher": "Guelph Humane Society",
+     "published_on": "2026-10-13",
+     "observed_on": "2026-10-24",
+     "url": "https://guelphhumane.ca/news/urgent-abandoned-in-a-box-and-pregnant-lucy-needs-your-help/",
+     "reported_state": "Pregnant; organization describes intended care.",
+     "kind": "organization_statement"
+    },
+    {
+     "source_id": "lucy-update",
+     "publisher": "Guelph Humane Society",
+     "published_on": "2026-10-14",
+     "observed_on": "2026-10-24",
+     "url": "https://guelphhumane.ca/news/update-lucy-gave-birth-to-her-kittens-at-ghs/",
+     "reported_state": "Organization reports Lucy gave birth to three kittens at GHS.",
+     "kind": "organization_statement"
+    }
+   ],
+   "date_issues": [],
+   "distinct_publisher_count": 1,
+   "independent_medical_verification": false,
+   "gates": [
+    {
+     "gate": "identity_geography",
+     "status": "not_established",
+     "explanation": "CRA identity/status was manually observed on 24 October 2026; actual case treatment location remains unverified. This is not a live registry recheck."
+    },
+    {
+     "gate": "medical_need",
+     "status": "not_established",
+     "explanation": "A current corresponding clinical statement or estimate has not been checked."
+    },
+    {
+     "gate": "funding_evidence",
+     "status": "not_established",
+     "explanation": "Case cost, funds raised, grants and allocation are not established."
+    },
+    {
+     "gate": "positive_disclosed_remainder",
+     "status": "not_established",
+     "explanation": "No supported remaining amount can be calculated."
+    },
+    {
+     "gate": "donation_channel",
+     "status": "not_established",
+     "explanation": "Official-page linked Lucy form was manually read; payment recipient/settlement ownership has not been independently verified."
+    },
+    {
+     "gate": "organization_risk",
+     "status": "not_established",
+     "explanation": "Approved current regional risk checks have not been completed."
+    }
+   ],
+   "next_evidence": [
+    "Current case update and actual treatment city.",
+    "Appropriately redacted dated corresponding clinical material.",
+    "Same-case cost, funding total, dates, grants and allocation.",
+    "Official identity, recipient linkage and approved risk checks."
+   ],
+   "limitations": [
+    "Saved manual observations; sources were not fetched again.",
+    "Assessment date is not a source update or freshness guarantee.",
+    "Same-publisher articles are not independent corroboration.",
+    "No autonomous discovery, model call or H-MEM ingestion.",
+    "Missing information does not imply wrongdoing."
+   ]
+  }
+ },
+ "lucy_incomplete_refresh": {
+  "reply": "The requested source check did not fully complete. This checks only those articles, not every possible update. Medical, funding and risk remain unverified; remaining need is unknown. The identity and allocation observations below are saved manual research, not refreshed by this request.",
+  "mode": "bounded_intent_matching",
+  "new_cloud_calls": 0,
+  "research": {
+   "case_id": "research-lucy-ghs",
+   "organization_display_name": "Guelph Humane Society",
+   "legal_name_verified": false,
+   "case_name": "Lucy and her kittens",
+   "external_form_observation": {
+    "title": "Lucy - Emergency Appeal - October 2026",
+    "observed_on": "2026-10-24",
+    "method": "manual_browser_read_only",
+    "allocation_reported": "If appeal donations exceed care costs, surplus supports other animals arriving at GHS.",
+    "case_cost_minor": null,
+    "raised_minor": null,
+    "remaining_minor": null,
+    "recipient_settlement_verified": false,
+    "payment_submitted": false,
+    "note": "Visible gift options are donation choices, not a cost, target or funding gap. Earlier research-tool cache miss is retained as attempt history, not current page availability."
+   },
+   "official_identity_observation": {
+    "legal_name": "THE GUELPH HUMANE SOCIETY INCORPORATED",
+    "registration_number": "119236305RR0001",
+    "status_displayed": "Registered",
+    "website_displayed": "https://guelphhumane.ca",
+    "observed_on": "2026-10-24",
+    "source_url": "https://apps.cra-arc.gc.ca/ebci/hacc/srch/pub/dsplyRprtngPrd/119236305RR0001",
+    "method": "manual_official_browser_review",
+    "rechecked_now": false,
+    "note": "Saved official observation; legal_name_verified above remains false for runtime verification. Case geography and full identity gate are incomplete."
+   },
+   "mode": "saved_manual_research",
+   "status": "pending_verification",
+   "qualified": false,
+   "remaining_minor": null,
+   "currency": "CAD",
+   "assessment_date": "2026-10-26",
+   "source_observed_on": "2026-10-24",
+   "latest_reported_state": "Organization reports Lucy gave birth to three kittens at GHS.",
+   "latest_statement_source_id": "lucy-update",
+   "sources": [
+    {
+     "source_id": "lucy-appeal",
+     "publisher": "Guelph Humane Society",
+     "published_on": "2026-10-13",
+     "observed_on": "2026-10-24",
+     "url": "https://guelphhumane.ca/news/urgent-abandoned-in-a-box-and-pregnant-lucy-needs-your-help/",
+     "reported_state": "Pregnant; organization describes intended care.",
+     "kind": "organization_statement"
+    },
+    {
+     "source_id": "lucy-update",
+     "publisher": "Guelph Humane Society",
+     "published_on": "2026-10-14",
+     "observed_on": "2026-10-24",
+     "url": "https://guelphhumane.ca/news/update-lucy-gave-birth-to-her-kittens-at-ghs/",
+     "reported_state": "Organization reports Lucy gave birth to three kittens at GHS.",
+     "kind": "organization_statement"
+    }
+   ],
+   "date_issues": [],
+   "distinct_publisher_count": 1,
+   "independent_medical_verification": false,
+   "gates": [
+    {
+     "gate": "identity_geography",
+     "status": "not_established",
+     "explanation": "CRA identity/status was manually observed on 24 October 2026; actual case treatment location remains unverified. This is not a live registry recheck."
+    },
+    {
+     "gate": "medical_need",
+     "status": "not_established",
+     "explanation": "A current corresponding clinical statement or estimate has not been checked."
+    },
+    {
+     "gate": "funding_evidence",
+     "status": "not_established",
+     "explanation": "Case cost, funds raised, grants and allocation are not established."
+    },
+    {
+     "gate": "positive_disclosed_remainder",
+     "status": "not_established",
+     "explanation": "No supported remaining amount can be calculated."
+    },
+    {
+     "gate": "donation_channel",
+     "status": "not_established",
+     "explanation": "Official-page linked Lucy form was manually read; payment recipient/settlement ownership has not been independently verified."
+    },
+    {
+     "gate": "organization_risk",
+     "status": "not_established",
+     "explanation": "Approved current regional risk checks have not been completed."
+    }
+   ],
+   "next_evidence": [
+    "Current case update and actual treatment city.",
+    "Appropriately redacted dated corresponding clinical material.",
+    "Same-case cost, funding total, dates, grants and allocation.",
+    "Official identity, recipient linkage and approved risk checks."
+   ],
+   "limitations": [
+    "Saved manual observations; sources were not fetched again.",
+    "Assessment date is not a source update or freshness guarantee.",
+    "Same-publisher articles are not independent corroboration.",
+    "No autonomous discovery, model call or H-MEM ingestion.",
+    "Missing information does not imply wrongdoing."
+   ]
+  },
+  "live_read": {
+   "status": "read_incomplete",
+   "sources": [],
+   "stage": "robots",
+   "error": "network_or_timeout",
+   "run_id": "c4fc4bc0-4776-4371-9c39-1f24c297027b",
+   "cached": false
+  }
+ },
+ "organization": {
+  "reply": "Here is the Lucy public-information checklist. Organization actions and unfinished system checks are separate. No private documents or fresh retrieval are involved.",
+  "mode": "bounded_intent_matching",
+  "new_cloud_calls": 0,
+  "organization_review": {
+   "status": "gap_review",
+   "mode": "real_public_research",
+   "organization_full_name": "Guelph Humane Society",
+   "case_id": "research-lucy-ghs",
+   "qualified": false,
+   "materials_fetched": false,
+   "representation_authority_verified": false,
+   "message": "Gap review of configured Lucy public links using saved research. No fresh website read; a link does not prove representation authority.",
+   "gap_checklist": [
+    {
+     "field": "case_location",
+     "what_to_add": "Clarify where Lucy and her kittens are actually receiving care.",
+     "why": "The organization address does not establish the treatment location.",
+     "where_to_obtain_or_publish": "A dated public case update; identify city and appropriately shareable provider information.",
+     "responsible_party": "organization",
+     "condition": "not_established",
+     "next_check": "After publication, request a permitted source refresh. New URLs require source-access review; changed text is not automatically verified."
+    },
+    {
+     "field": "clinical_material",
+     "what_to_add": "Link current dated clinical material to this cat family.",
+     "why": "A care story is not independent clinical confirmation.",
+     "where_to_obtain_or_publish": "An appropriately redacted public estimate or issuer statement, with case linkage and date.",
+     "responsible_party": "organization",
+     "condition": "not_established",
+     "next_check": "After publication, request a permitted source refresh. New URLs require source-access review; changed text is not automatically verified."
+    },
+    {
+     "field": "cost_and_funding",
+     "what_to_add": "Publish a same-case cost and funding breakdown with an as-of date.",
+     "why": "Unknown totals cannot establish a positive remaining need.",
+     "where_to_obtain_or_publish": "Public appeal update: care budget/estimate, received total, grants and whether grants are included.",
+     "responsible_party": "organization",
+     "condition": "not_established",
+     "next_check": "After publication, request a permitted source refresh. New URLs require source-access review; changed text is not automatically verified."
+    },
+    {
+     "field": "allocation",
+     "what_to_add": "Keep the published surplus policy visible and clarify how case funds are counted.",
+     "why": "The form already says surplus may help other GHS animals; it does not give current case totals.",
+     "where_to_obtain_or_publish": "The public appeal and official donation page, with consistent allocation and date.",
+     "responsible_party": "organization",
+     "condition": "not_established",
+     "next_check": "After publication, request a permitted source refresh. New URLs require source-access review; changed text is not automatically verified."
+    },
+    {
+     "field": "identity_channel",
+     "what_to_add": "Recheck official identity, recipient linkage and case geography.",
+     "why": "A saved manual CRA observation is available, but runtime/current recipient checks are incomplete.",
+     "where_to_obtain_or_publish": "Applicable official registry and permitted organization-to-payment-recipient evidence; no payment test.",
+     "responsible_party": "system",
+     "condition": "not_established",
+     "next_check": "After publication, request a permitted source refresh. New URLs require source-access review; changed text is not automatically verified."
+    },
+    {
+     "field": "risk_coverage",
+     "what_to_add": "Complete the approved regional risk checks.",
+     "why": "The system has not completed required coverage. This is not an allegation or an organization-document failure.",
+     "where_to_obtain_or_publish": "Configured permitted official risk sources; regional policy owner resolves missing source policy.",
+     "responsible_party": "system",
+     "condition": "not_established",
+     "next_check": "After publication, request a permitted source refresh. New URLs require source-access review; changed text is not automatically verified."
+    }
+   ],
+   "existing_observations": {
+    "official_identity": {
+     "legal_name": "THE GUELPH HUMANE SOCIETY INCORPORATED",
+     "registration_number": "119236305RR0001",
+     "status_displayed": "Registered",
+     "website_displayed": "https://guelphhumane.ca",
+     "observed_on": "2026-10-24",
+     "source_url": "https://apps.cra-arc.gc.ca/ebci/hacc/srch/pub/dsplyRprtngPrd/119236305RR0001",
+     "method": "manual_official_browser_review",
+     "rechecked_now": false,
+     "note": "Saved official observation; legal_name_verified above remains false for runtime verification. Case geography and full identity gate are incomplete."
+    },
+    "published_allocation": {
+     "title": "Lucy - Emergency Appeal - October 2026",
+     "observed_on": "2026-10-24",
+     "method": "manual_browser_read_only",
+     "allocation_reported": "If appeal donations exceed care costs, surplus supports other animals arriving at GHS.",
+     "case_cost_minor": null,
+     "raised_minor": null,
+     "remaining_minor": null,
+     "recipient_settlement_verified": false,
+     "payment_submitted": false,
+     "note": "Visible gift options are donation choices, not a cost, target or funding gap. Earlier research-tool cache miss is retained as attempt history, not current page availability."
+    }
+   },
+   "latest_runtime_review": {
+    "status": "source_check_incomplete",
+    "memory": {
+     "status": "not_configured",
+     "saved_memory_id": null,
+     "recalled_memory_id": null
+    },
+    "run_id": "c4fc4bc0-4776-4371-9c39-1f24c297027b"
+   },
+   "privacy_note": "Publish only appropriate public information on your own channels. Do not submit private documents, donor details or payment credentials here.",
+   "guarantee": "This checklist does not certify the organization, guarantee qualification or promise donations. No payment or outreach is performed."
+  }
+ },
+ "fictional_pending": {
+  "reply": "No case meets all requirements in this collection.",
+  "mode": "bounded_intent_matching",
+  "new_cloud_calls": 0,
+  "results": {
+   "status": "results",
+   "region": "Ontario",
+   "expanded": false,
+   "qualified": [],
+   "pending": [
+    {
+     "organization_full_name": "Example Ontario Cat Care (fictional)",
+     "registration_category": "Synthetic registered rescue organization; no real status verified",
+     "case_id": "SYN-MAPLE",
+     "case_name": "Maple treatment",
+     "case_city": "Ottawa",
+     "scenario_type": "synthetic",
+     "qualified": false,
+     "remaining_minor": null,
+     "currency": "CAD",
+     "funding_notice": "Calculated from the organization's disclosures as of 2026-10-24; all funding has not been independently confirmed.",
+     "review_date": "2026-10-24",
+     "evidence": [
+      {
+       "field": "identity_active",
+       "value": true,
+       "source_id": "registry-risk",
+       "reference": "synthetic://SYN-MAPLE/registry-risk",
+       "publisher": "Synthetic registry and risk fixture",
+       "source_date": "2026-10-24",
+       "location": "facts.identity_active",
+       "scenario_type": "synthetic",
+       "extraction_provenance": null
+      },
+      {
+       "field": "in_region",
+       "value": true,
+       "source_id": "registry-risk",
+       "reference": "synthetic://SYN-MAPLE/registry-risk",
+       "publisher": "Synthetic registry and risk fixture",
+       "source_date": "2026-10-24",
+       "location": "facts.in_region",
+       "scenario_type": "synthetic",
+       "extraction_provenance": null
+      }
+     ],
+     "unknowns": [
+      {
+       "field": "grant_inclusion",
+       "reason": "funding_overlap",
+       "suggested_channel": "Organization public case page or corresponding issuer public statement"
+      }
+     ],
+     "unpassed_requirements": [
+      "Current compatible cost and funding records must support the calculation.",
+      "A positive disclosed funding gap must be established; fully funded is not misconduct."
+     ],
+     "risk_hold": false,
+     "external_donation_url": null,
+     "limitations": [
+      "This is a fictional case, not a donation recommendation.",
+      "No real registration, veterinary issuer or payment channel has been checked."
+     ]
+    }
+   ],
+   "no_current_gap": [],
+   "message": "No case meets all requirements in this collection.",
+   "expansion_question": "No qualifying case in that city. Search other supported Ontario cities?",
+   "coverage": "Small synthetic curated collection; not an internet search."
+  }
+ },
+ "fictional_qualified": {
+  "reply": "Synthetic results only.",
+  "mode": "bounded_intent_matching",
+  "new_cloud_calls": 0,
+  "results": {
+   "status": "results",
+   "region": "Ontario",
+   "expanded": false,
+   "qualified": [
+    {
+     "organization_full_name": "Example Ontario Cat Care (fictional)",
+     "registration_category": "Synthetic registered rescue organization; no real status verified",
+     "case_id": "SYN-MAPLE",
+     "case_name": "Maple treatment",
+     "case_city": "Ottawa",
+     "scenario_type": "synthetic",
+     "qualified": true,
+     "remaining_minor": 100000,
+     "currency": "CAD",
+     "funding_notice": "Calculated from the organization's disclosures as of 2026-10-24; all funding has not been independently confirmed.",
+     "review_date": "2026-10-24",
+     "evidence": [
+      {
+       "field": "identity_active",
+       "value": true,
+       "source_id": "registry-risk",
+       "reference": "synthetic://SYN-MAPLE/registry-risk",
+       "publisher": "Synthetic registry and risk fixture",
+       "source_date": "2026-10-24",
+       "location": "facts.identity_active",
+       "scenario_type": "synthetic",
+       "extraction_provenance": null
+      },
+      {
+       "field": "in_region",
+       "value": true,
+       "source_id": "registry-risk",
+       "reference": "synthetic://SYN-MAPLE/registry-risk",
+       "publisher": "Synthetic registry and risk fixture",
+       "source_date": "2026-10-24",
+       "location": "facts.in_region",
+       "scenario_type": "synthetic",
+       "extraction_provenance": null
+      }
+     ],
+     "unknowns": [],
+     "unpassed_requirements": [],
+     "risk_hold": false,
+     "external_donation_url": null,
+     "limitations": [
+      "This is a fictional case, not a donation recommendation.",
+      "No real registration, veterinary issuer or payment channel has been checked."
+     ]
+    }
+   ],
+   "pending": [],
+   "no_current_gap": [],
+   "message": "Synthetic results only.",
+   "expansion_question": null,
+   "coverage": "Small synthetic curated collection; not an internet search."
+  }
+ }
+}
