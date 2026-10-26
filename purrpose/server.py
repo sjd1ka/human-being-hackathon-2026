@@ -203,7 +203,10 @@ def handler_for(app):
             if self.path == '/api/status':
                 return self.respond(200, app.status())
             files = {'/': ('index.html', 'text/html; charset=utf-8'),
-                     '/home.html': ('design-home.html', 'text/html; charset=utf-8'),
+                     '/home.html': ('landing.html', 'text/html; charset=utf-8'),
+                     '/landing.js': ('landing.js', 'text/javascript; charset=utf-8'),
+                     '/app.html': ('design-home.html', 'text/html; charset=utf-8'),
+                     '/app-shell.css': ('app-shell.css', 'text/css; charset=utf-8'),
                      '/organizations.html': ('organization-demo.html', 'text/html; charset=utf-8'),
                      '/architecture.html': ('architecture.html', 'text/html; charset=utf-8'),
                      '/architecture.css': ('architecture.css', 'text/css; charset=utf-8'),
@@ -222,9 +225,10 @@ def handler_for(app):
                      '/api-client.js': ('api-client.js', 'text/javascript; charset=utf-8'),
                      '/app.js': ('app.js', 'text/javascript; charset=utf-8'),
                      '/app.css': ('app.css', 'text/css; charset=utf-8')}
-            if self.path not in files:
+            page = self.path.split('?', 1)[0]  # The page reads ?q= itself; files are matched by path only.
+            if page not in files:
                 return self.respond(404, {'error': 'not_found'})
-            filename, mime = files[self.path]
+            filename, mime = files[page]
             self.respond(200, (WEB/filename).read_bytes(), mime)
 
         def do_POST(self):

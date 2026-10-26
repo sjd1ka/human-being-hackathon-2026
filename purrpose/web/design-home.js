@@ -2,6 +2,7 @@
 const api=createPurrposeClient();
 const form=document.getElementById('prompt'),box=document.getElementById('appeal');
 const send=document.getElementById('send'),notice=document.getElementById('notice');
+const chatScroll=document.getElementById('chat-scroll');
 const chatsBox=document.getElementById('chats'),chatList=document.getElementById('chat-list'),intro=document.getElementById('intro');
 const panel=document.getElementById('panel'),panelToggle=document.getElementById('panel-toggle');
 const views={review:document.getElementById('view-review'),map:document.getElementById('view-map')};
@@ -58,7 +59,8 @@ async function submit(raw){
  const message=raw.trim();if(busy||!message)return;busy=true;sync();
  for(const b of document.querySelectorAll('.chip,.results button'))b.disabled=true;
  const chat=current,host=chat.host;if(chat.title==='New chat'){chat.title=message.slice(0,32);drawList();}intro.hidden=true;
- const you=node('article');you.className='you';const said=node('span','You said: ');said.className='sr-only';you.append(said,document.createTextNode(message));host.append(you);notice.textContent='Checking…';
+ const you=node('article');you.className='you';const said=node('span','You said: ');said.className='sr-only';you.append(said,document.createTextNode(message));host.append(you);
+ chatScroll.scrollTop=chatScroll.scrollHeight;notice.textContent='Checking…';
  try{
   let query=message;
   if(/^https?:\/\//i.test(message)){
@@ -66,7 +68,7 @@ async function submit(raw){
    if(!known.includes(message)){render({reply:'This prototype supports only the configured Lucy articles. This URL was not fetched. Try “I want to help a cat” or use the example request.'},host,chat);notice.textContent='Unsupported URL; no source was fetched.';return;}
    query='Tell me about Lucy';
   }
-  const result=await api.chat(chat.id,query);render(result,host,chat);chat.latest=result;if(current===chat)select(chat,result);host.lastElementChild.scrollIntoView({block:'nearest'});box.value='';const mi=result.model_intent;notice.textContent=(result.new_cloud_calls?`A configured model (${mi&&mi.route}) classified this message; code wrote the answer. `:mi&&mi.status==='cached'?'Reused an earlier model classification; no new cloud-model call. ':'No new cloud-model call. ')+'No payment. Source refresh happens only when explicitly requested.';
+  const result=await api.chat(chat.id,query);render(result,host,chat);chat.latest=result;if(current===chat)select(chat,result);you.scrollIntoView({block:'start',behavior:'smooth'});box.value='';const mi=result.model_intent;notice.textContent=(result.new_cloud_calls?`A configured model (${mi&&mi.route}) classified this message; code wrote the answer. `:mi&&mi.status==='cached'?'Reused an earlier model classification; no new cloud-model call. ':'No new cloud-model call. ')+'No payment. Source refresh happens only when explicitly requested.';
  }catch(error){notice.textContent=error.code==='timeout_result_unknown'?'The result is uncertain after a timeout. Backend work may still be running; do not automatically retry.':'The request did not complete. No new result is confirmed.';box.value=message;}
  finally{busy=false;for(const b of document.querySelectorAll('.chip,.results button'))b.disabled=false;sync();}
 }
@@ -132,4 +134,15 @@ function showReview(chat,result){
  if(model&&typeof renderReview==='function'){renderReview(box,model,{link});return;}
  const empty=node('p','Ask about a case, for example “Explore Lucy’s case”. Its evidence, funding and open questions appear here, each with its own status.');empty.className='empty';box.replaceChildren(empty);
 }
+/* Phone menu: the sidebar slides over the chat */
+const sidebar=document.getElementById('sidebar'),scrim=document.getElementById('scrim'),menuBtn=document.getElementById('menu-btn');
+function menu(open){sidebar.classList.toggle('open',open);scrim.hidden=!open;menuBtn.setAttribute('aria-expanded',String(open));}
+menuBtn.addEventListener('click',()=>menu(true));
+document.getElementById('sidebar-close').addEventListener('click',()=>menu(false));
+scrim.addEventListener('click',()=>menu(false));
+chatList.addEventListener('click',()=>menu(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu(false);if(panel.classList.contains('open'))closePanel();}});
+document.getElementById('new-chat').addEventListener('click',()=>menu(false));
 newChat();emptyMap(views.map);sync();
+/* A message sent from the home page arrives as ?q=… and is sent once, then removed from the address bar. */
+try{const q=new URLSearchParams(location.search).get('q');if(q&&q.trim()){history.replaceState(null,'',location.pathname);submit(q.slice(0,1500));}}catch(_){}

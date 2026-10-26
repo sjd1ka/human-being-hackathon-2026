@@ -38,4 +38,10 @@ async function load(){
  }catch(_){status.textContent='The run list could not be loaded.';}
 }
 document.getElementById('refresh').addEventListener('click',load);
+const sidebar=document.getElementById('sidebar'),scrim=document.getElementById('scrim'),menuBtn=document.getElementById('menu-btn');
+function menu(open){sidebar.classList.toggle('open',open);scrim.hidden=!open;menuBtn.setAttribute('aria-expanded',String(open));}
+menuBtn.addEventListener('click',()=>menu(true));
+document.getElementById('sidebar-close').addEventListener('click',()=>menu(false));
+scrim.addEventListener('click',()=>menu(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')menu(false);});
 load();

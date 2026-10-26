@@ -47,8 +47,30 @@ class LocalServerTests(TestCase):
         self.assertIn('not a qualified donation recommendation', page)
         self.assertIsNone(self.app.latest_run)
 
+    def test_home_is_a_landing_page_that_hands_off_to_the_app(self):
+        status, page = self.request('/home.html')
+        self.assertEqual(status, 200)
+        self.assertIn('action="/app.html"', page)
+        self.assertIn('name="q"', page)
+        self.assertIn('href="/app.html"', page)
+        self.assertNotIn('src="/design-home.js"', page)
+        self.assertNotIn('<script>', page)
+        self.assertNotIn('style=', page)
+        self.assertEqual(self.request('/landing.js')[0], 200)
+
+    def test_app_shell_has_sidebar_fixed_composer_and_panel(self):
+        status, page = self.request('/app.html')
+        self.assertEqual(status, 200)
+        for marker in ('class="sidebar"', 'id="chat-scroll"', 'class="composer-wrap"', 'id="panel"',
+                       'href="/dashboard.html"', 'href="/home.html"'):
+            self.assertIn(marker, page)
+        self.assertLess(page.index('id="chat-scroll"'), page.index('class="composer-wrap"'))
+        self.assertNotIn('style=', page)
+        self.assertEqual(self.request('/app-shell.css')[0], 200)
+        self.assertEqual(self.request('/app.html?q=Tell+me+about+Lucy')[0], 200)
+
     def test_connected_design_has_local_assets_and_honest_scope(self):
-        status,page=self.request('/home.html')
+        status,page=self.request('/app.html')
         self.assertEqual(status,200)
         self.assertIn('one real pending case',page)
         self.assertNotIn('fonts.googleapis.com',page)
@@ -160,7 +182,8 @@ class LocalServerTests(TestCase):
         self.assertIn('Runs since this server started; cleared on restart.', page)
         self.assertEqual(self.request('/dashboard.js')[0], 200)
         self.assertEqual(self.request('/dashboard.css')[0], 200)
-        self.assertIn('/dashboard.html', self.request('/home.html')[1])
+        self.assertIn('/dashboard.html', self.request('/app.html')[1])
+        self.assertIn('class="sidebar"', page)
 
 
 if __name__ == '__main__':

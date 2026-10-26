@@ -14,6 +14,7 @@ def inspect_environment(reference=None, node='node'):
     assets = ['web/index.html','web/app.js','web/app.css','web/api-client.js','web/agent-map.js','web/dashboard.html','web/dashboard.js','web/dashboard.css','web/review-panel.js','fixtures/chat-samples.json',
               'web/research.html','web/research.js','fixtures/maple.json','hmem-bridge.mjs',
               'web/design-home.html','web/design-home.css','web/design-home.js',
+              'web/landing.html','web/landing.js','web/app-shell.css',
               'web/design-favicon.svg','web/design-favicon-warm.svg',
               'web/organization-demo.html','web/organization-demo.js',
               'web/architecture.html','web/architecture.css']

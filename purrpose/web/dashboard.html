@@ -3,32 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Purrpose runs</title>
+  <title>Runs · Purrpose</title>
   <meta name="description" content="Every review run since this local server started, with its agent map and step log.">
   <link rel="icon" href="/design-favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/design-home.css">
+  <link rel="stylesheet" href="/app-shell.css">
   <link rel="stylesheet" href="/dashboard.css">
 </head>
-<body class="dashboard-page">
-  <header>
-    <a class="brand" href="/home.html" aria-label="Purrpose chat"><img src="/design-favicon.svg" alt="" width="30" height="30"><span>purrpose<span class="dot">.</span></span></a>
-    <nav aria-label="Main"><a href="/home.html">Chat</a><a href="/dashboard.html" aria-current="page">Dashboard</a></nav>
-  </header>
-  <main class="dash-main">
-    <h1>Runs</h1>
-    <p class="scope">Runs since this server started; cleared on restart. Each row is a review the agents ran, as the backend recorded it; the last 50 are kept. Agents are code roles in one process.</p>
-    <div class="dash-bar"><button type="button" id="refresh">Refresh</button><span id="status" role="status" aria-live="polite"></span></div>
-    <div class="dash-grid">
-      <section aria-label="Run list">
+<body class="dashboard-page app-shell">
+  <aside class="sidebar" id="sidebar" aria-label="App navigation">
+    <div class="sidebar-top">
+      <a class="brand" href="/home.html" aria-label="Purrpose home"><svg class="logo" viewBox="0 0 1005 256" role="img" aria-label="purrpose."><defs><linearGradient id="ppCool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4B7BFF"/><stop offset=".55" stop-color="#A993FF"/><stop offset="1" stop-color="#FF3D9A"/></linearGradient><linearGradient id="ppWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB21E"/><stop offset=".5" stop-color="#FF6A5C"/><stop offset=".8" stop-color="#FF3D9A"/><stop offset="1" stop-color="#A993FF"/></linearGradient></defs><path class="logo-mark" fill-rule="evenodd" d="M24 24 61.44 65.6H142.56L180 24V122.8C180 124.67 179.93 126.53 179.79 128.36L154.25 133.27Q152.21 133.67 151.39 134.89Q150.56 136.1 150.95 138.15Q151.74 142.23 155.83 141.45L178.6 137.06C178.02 140 177.26 142.88 176.33 145.68H155.04Q150.88 145.68 150.88 149.84Q150.88 154 155.04 154H172.99C172.03 156.03 170.97 158.01 169.83 159.93L158.2 156.81Q154.18 155.74 153.1 159.76Q152.03 163.77 156.04 164.85L164.88 167.22C151.57 184.48 130.68 195.6 107.2 195.6H72.88L24 232V171.74Q24.51 171.69 25.08 171.54L50.04 164.85Q54.05 163.77 52.98 159.76Q51.9 155.74 47.88 156.81L24 163.21V154H51.04Q55.2 154 55.2 149.84Q55.2 145.68 51.04 145.68H24V136.4L50.25 141.45Q54.34 142.23 55.13 138.15Q55.52 136.1 54.69 134.89Q53.87 133.67 51.83 133.27L24.79 128.07Q24.38 128 24 127.97ZM93.68 126.44Q92.69 126.44 91.95 127.1Q90.01 128.82 91.74 130.77L97.52 137.27Q96.72 138.45 96.78 140.3Q96.06 144.64 90.56 144.64Q80.93 144.64 75.19 135.61Q72.4 131.22 68.01 134.01Q63.62 136.8 66.41 141.19Q75.23 155.04 90.56 155.04Q97.87 155.04 102 151.74Q106.13 155.04 113.44 155.04Q128.77 155.04 137.59 141.19Q140.38 136.8 135.99 134.01Q131.6 131.22 128.81 135.61Q123.07 144.64 113.44 144.64Q107.94 144.64 107.22 140.3Q107.28 138.45 106.48 137.27L112.26 130.77Q112.92 130.03 112.92 129.04Q112.92 126.44 110.32 126.44ZM113.19 111.11Q108.78 115.52 113.19 119.93Q117.6 124.34 122.01 119.93Q133.2 108.74 144.39 119.93Q148.8 124.34 153.21 119.93Q155.42 117.73 155.42 115.52Q155.42 113.31 153.21 111.11Q133.2 91.1 113.19 111.11ZM55.57 96.81Q49.34 96.44 48.97 102.67Q48.79 105.79 50.25 107.44Q51.72 109.09 54.83 109.27Q70.56 110.19 83.58 120.43Q88.49 124.28 92.35 119.38Q96.2 114.47 91.3 110.61Q75.2 97.97 55.57 96.81Z"/><path class="logo-word" d="M216.08 234.51H240.86V182.31H241.12Q244 187.71 248.21 191.34Q252.42 194.96 257.75 196.79Q263.07 198.62 269.31 198.62Q281.86 198.62 291.15 192.36Q300.44 186.1 305.58 174.87Q310.73 163.64 310.73 148.72Q310.73 133.99 305.52 122.78Q300.32 111.57 291.05 105.28Q281.77 98.98 269.47 98.98Q263.31 98.98 257.86 100.67Q252.41 102.36 248.08 105.71Q243.76 109.06 240.8 114.12H240.5V100.96H216.08ZM553.78 234.51H578.56V182.31H578.83Q581.7 187.71 585.91 191.34Q590.13 194.96 595.45 196.79Q600.77 198.62 607.01 198.62Q619.56 198.62 628.85 192.36Q638.14 186.1 643.29 174.87Q648.43 163.64 648.43 148.72Q648.43 133.99 643.23 122.78Q638.02 111.57 628.75 105.28Q619.48 98.98 607.18 98.98Q601.02 98.98 595.56 100.67Q590.11 102.36 585.79 105.71Q581.46 109.06 578.51 114.12H578.2V100.96H553.78ZM703.56 198.81Q717.9 198.81 728.66 192.55Q739.42 186.28 745.44 175.05Q751.46 163.81 751.46 148.9Q751.46 133.94 745.44 122.67Q739.42 111.41 728.66 105.1Q717.9 98.79 703.56 98.79Q689.31 98.79 678.5 105.1Q667.7 111.41 661.68 122.67Q655.66 133.94 655.66 148.9Q655.66 163.81 661.68 175.05Q667.7 186.28 678.5 192.55Q689.31 198.81 703.56 198.81ZM897.3 198.81Q908.7 198.81 918.12 194.74Q927.54 190.66 933.78 183.46Q940.02 176.26 941.79 166.83H918.88Q917.64 170.71 914.79 173.64Q911.94 176.57 907.69 178.19Q903.45 179.81 897.96 179.81Q890.42 179.81 885.1 176.54Q879.78 173.28 876.99 167.38Q874.47 162.04 874.23 155.16H942.85V148.45Q942.85 137.47 939.53 128.38Q936.21 119.28 930.05 112.64Q923.89 105.99 915.36 102.39Q906.84 98.79 896.38 98.79Q882.8 98.79 872.34 105.22Q861.88 111.66 855.95 122.97Q850.01 134.27 850.01 148.9Q850.01 163.39 855.82 174.69Q861.62 185.99 872.26 192.4Q882.89 198.81 897.3 198.81ZM356.12 198.62Q368.92 198.62 377.3 191.67Q382.17 187.63 385.76 181.65V196.64H410.13V100.96H385.35V154.59Q385.35 162.36 382.79 167.35Q380.23 172.34 375.75 174.7Q371.26 177.06 365.51 177.06Q356.77 177.06 351.91 171.82Q347.05 166.59 347.05 156.54V100.96H322.27V160.81Q322.27 172.96 326.52 181.41Q330.77 189.86 338.42 194.24Q346.07 198.62 356.12 198.62ZM801.64 198.94Q813.82 198.94 823.19 195.12Q832.56 191.29 837.85 184.32Q843.14 177.35 843.14 167.9Q843.14 157.36 836.36 150.97Q829.58 144.57 815.2 141.63L797.51 138.09Q791.81 136.87 788.58 134.33Q785.34 131.8 785.34 127.79Q785.34 123.22 789.5 120.08Q793.65 116.95 800.85 116.95Q808.3 116.95 812.95 120.95Q817.6 124.96 817.69 131.02H840.8Q840.53 121.1 835.4 113.93Q830.26 106.75 821.23 102.83Q812.2 98.91 800.2 98.91Q788.13 98.91 779.23 102.63Q770.33 106.35 765.49 113.06Q760.64 119.76 760.64 128.69Q760.64 139.64 767.81 146.64Q774.98 153.64 788.79 156.44L805.33 159.74Q811.32 160.95 814.69 163.43Q818.07 165.92 818.07 169.97Q818.07 174.72 813.58 177.77Q809.09 180.82 801.2 180.82Q793.06 180.82 788.35 177.12Q783.64 173.43 782.91 166.83H758.47Q759.27 177.08 764.98 184.27Q770.7 191.46 780.15 195.2Q789.61 198.94 801.64 198.94ZM426.02 196.64H450.8V143.62Q450.8 136.24 453.32 131.3Q455.83 126.36 460.2 123.87Q464.57 121.38 469.98 121.38Q473.38 121.38 476.57 121.61Q479.76 121.83 481.12 121.98V100.46Q479.64 100.36 477.71 100.26Q475.78 100.16 473.45 100.16Q464.08 100.16 458.45 104.39Q452.82 108.61 450.2 117.06H449.91V100.96H426.02ZM489.9 196.64H514.68V143.62Q514.68 136.24 517.2 131.3Q519.71 126.36 524.08 123.87Q528.45 121.38 533.86 121.38Q537.26 121.38 540.45 121.61Q543.65 121.83 545 121.98V100.46Q543.52 100.36 541.59 100.26Q539.66 100.16 537.33 100.16Q527.96 100.16 522.33 104.39Q516.7 108.61 514.08 117.06H513.8V100.96H489.9ZM263.16 178.19Q256.08 178.19 250.76 174.54Q245.44 170.9 242.51 164.26Q239.59 157.62 239.59 148.72Q239.59 139.76 242.51 133.17Q245.44 126.57 250.76 122.93Q256.08 119.28 263.16 119.28Q269.99 119.28 275.03 122.73Q280.07 126.17 282.87 132.72Q285.68 139.26 285.68 148.72Q285.68 158.12 282.87 164.71Q280.07 171.3 275.03 174.74Q269.99 178.19 263.16 178.19ZM600.87 178.19Q593.78 178.19 588.46 174.54Q583.14 170.9 580.22 164.26Q577.3 157.62 577.3 148.72Q577.3 139.76 580.22 133.17Q583.14 126.57 588.46 122.93Q593.78 119.28 600.87 119.28Q607.69 119.28 612.73 122.73Q617.77 126.17 620.58 132.72Q623.39 139.26 623.39 148.72Q623.39 158.12 620.58 164.71Q617.77 171.3 612.73 174.74Q607.69 178.19 600.87 178.19ZM703.56 178.42Q696.66 178.42 691.51 174.88Q686.36 171.33 683.53 164.72Q680.7 158.1 680.7 148.9Q680.7 139.61 683.53 132.96Q686.36 126.32 691.54 122.75Q696.71 119.18 703.56 119.18Q710.5 119.18 715.63 122.77Q720.76 126.37 723.59 132.99Q726.42 139.61 726.42 148.9Q726.42 158.05 723.59 164.69Q720.76 171.33 715.63 174.88Q710.5 178.42 703.56 178.42ZM874.42 138.75Q874.98 133.65 876.98 129.64Q879.75 124.07 884.83 121.05Q889.9 118.02 896.83 118.02Q903.85 118.02 908.92 121.05Q914 124.07 916.78 129.64Q918.78 133.65 919.33 138.75H874.42ZM966.52 198.26Q972.67 198.26 976.95 193.96Q981.23 189.65 981.23 183.55Q981.23 177.4 976.95 173.12Q972.67 168.84 966.52 168.84Q960.42 168.84 956.12 173.12Q951.81 177.4 951.81 183.55Q951.81 189.65 956.12 193.96Q960.42 198.26 966.52 198.26Z"/></svg></a>
+      <button class="icon-btn sidebar-close" type="button" id="sidebar-close" aria-label="Close menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <a class="new-chat" href="/app.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      New chat
+    </a>
+    <nav class="side-nav" aria-label="Main">
+      <a href="/app.html">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>
+        Chat
+      </a>
+      <a href="/dashboard.html" aria-current="page">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Runs
+      </a>
+      <a href="/organizations.html">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V9l7-5 7 5v12M10 21v-6h4v6"/></svg>
+        For rescues
+      </a>
+      <a href="/architecture.html">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+        How it works
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="side-home" href="/home.html">← Purrpose home</a>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <div class="app-main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" type="button" id="menu-btn" aria-controls="sidebar" aria-expanded="false" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 class="page-title">Runs</h1>
+      <p class="page-sub">Runs since this server started; cleared on restart.</p>
+      <button type="button" id="refresh" class="topbar-btn">Refresh</button>
+    </header>
+
+    <div class="app-body dash-body">
+      <main class="dash-main">
+        <p class="scope">Each row is a review the agents ran, as the backend recorded it. The last 50 are kept in memory. Agents are code roles in one process. <span id="status" role="status" aria-live="polite"></span></p>
         <table id="runs">
           <thead><tr><th scope="col">Time</th><th scope="col">Chat</th><th scope="col">Case</th><th scope="col">Type</th><th scope="col">Result</th><th scope="col">Duration</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
-        <p id="empty" class="empty" hidden>No runs yet. Ask about Lucy and say “refresh Lucy”, or ask for the fictional demo, in the chat.</p>
-      </section>
+        <p id="empty" class="empty" hidden>No runs yet. In the chat, ask about Lucy and say “refresh Lucy”, or ask for the fictional example.</p>
+      </main>
       <section class="panel dash-detail" aria-label="Selected run" id="detail"><p class="empty">Select a run to see its agent map and step log.</p></section>
     </div>
-  </main>
+  </div>
+
   <script src="/api-client.js" defer></script><script src="/agent-map.js" defer></script><script src="/dashboard.js" defer></script>
 </body>
 </html>

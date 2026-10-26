@@ -1,0 +1,86 @@
+/* App shell (chat and runs): fixed sidebar, top bar, independently scrolling content, pinned composer.
+   Landing page extras at the end. Builds on the tokens in design-home.css. */
+
+body.app-shell{height:100vh;height:100dvh;min-height:0;overflow:hidden;display:grid;grid-template-columns:252px minmax(0,1fr);flex-direction:initial}
+
+/* Sidebar */
+.sidebar{display:flex;flex-direction:column;gap:14px;min-height:0;padding:18px 14px;background:var(--surface);border-right:1px solid var(--line);overflow-y:auto;z-index:2}
+.sidebar-top{display:flex;align-items:center;gap:8px;padding:0 4px}
+.sidebar .brand{margin-right:auto}
+.sidebar .brand .logo{height:30px}
+.icon-btn{display:none;place-items:center;width:36px;height:36px;border:1px solid transparent;border-radius:10px;background:none;color:var(--text);cursor:pointer}
+.icon-btn:hover{background:var(--bg)}
+.icon-btn:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.sidebar .new-chat{text-decoration:none;color:var(--text);display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.side-nav{display:flex;flex-direction:column;gap:2px}
+.side-nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
+.side-nav a:hover{background:var(--bg);color:var(--text)}
+.side-nav a[aria-current="page"]{background:#f1eefb;color:var(--text)}
+.side-nav a:focus-visible,.side-home:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.side-nav svg{flex:none}
+.side-label{margin:6px 10px 0;font-size:12px;font-weight:600;color:var(--muted)}
+.chat-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;min-height:0;overflow-y:auto}
+.chat-list li button{width:100%;text-align:left;font:inherit;font-size:14px;padding:8px 10px;border:1px solid transparent;border-radius:10px;background:none;color:var(--muted);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-list li button:hover{background:var(--bg);color:var(--text)}
+.chat-list li button[aria-current="true"]{background:var(--bg);border-color:var(--line);color:var(--text)}
+.chat-list li button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.sidebar-foot{margin-top:auto;display:grid;gap:10px;justify-items:start;padding:0 4px}
+.sidebar-foot .visits-note{margin:0}
+.side-home{font-size:13px;color:var(--muted);text-decoration:none}
+.side-home:hover{color:var(--text)}
+
+/* Main column */
+.app-main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.app-shell .topbar{max-width:none;width:auto;margin:0}
+.topbar{flex:none;display:flex;align-items:center;gap:14px;height:60px;padding:0 24px;border-bottom:1px solid var(--line);background:var(--bg)}
+.topbar .page-title{margin:0;max-width:none;font-size:17px;line-height:1.2;font-weight:650;letter-spacing:-.01em}
+.page-sub{margin:0;padding-left:14px;border-left:1px solid var(--line);color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .panel-toggle{margin-left:auto}
+.app-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 440px}
+
+/* Chat: messages scroll, composer stays put */
+.chat-app main.chat-col{display:flex;flex-direction:column;align-items:stretch;min-width:0;min-height:0;padding:0;text-align:left}
+.chat-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.chat-inner{max-width:780px;margin:0 auto;padding:24px 24px 8px}
+.chat-col .intro{text-align:center;padding:9vh 0 20px}
+.intro-title{margin:0 0 10px;font-size:clamp(26px,3vw,34px);line-height:1.15;font-weight:680;letter-spacing:-.03em;text-wrap:balance}
+.chat-col .intro .lede{margin:0 auto 22px;font-size:16px;max-width:52ch}
+.chat-app .chat-col .examples{justify-content:center;margin-top:0}
+.chat-app .results{margin:0}
+.chat-app .results article{margin:14px 0}
+.composer-wrap{flex:none;padding:8px 24px 12px;background:var(--bg)}
+.chat-app .composer-wrap .prompt{position:static;max-width:780px;margin:0 auto;padding:12px 14px 10px}
+.composer-wrap .prompt textarea{min-height:26px;font-size:16px;resize:none}
+.composer-wrap .notice{max-width:780px;margin:6px auto 0;min-height:16px;font-size:12px;text-align:center}
+
+/* Right panel: full height, own scroll */
+.app-body .panel{position:static;top:auto;height:100%;max-height:none;min-height:0;overflow-y:auto;border:0;border-left:1px solid var(--line);border-radius:0;box-shadow:none;padding:16px 20px 24px;background:var(--surface)}
+
+.scrim{position:fixed;inset:0;background:rgba(27,27,31,.32);z-index:25}
+.scrim[hidden]{display:none}
+
+@media(max-width:1180px){.app-body{grid-template-columns:minmax(0,1fr) 380px}}
+@media(max-width:900px){
+  body.app-shell{grid-template-columns:minmax(0,1fr)}
+  .sidebar{position:fixed;inset:0 auto 0 0;width:min(300px,86vw);z-index:30;transform:translateX(-102%);visibility:hidden;transition:transform .2s,visibility .2s;box-shadow:0 20px 60px -20px rgba(27,27,31,.35)}
+  .sidebar.open{transform:none;visibility:visible}
+  .icon-btn{display:inline-grid}
+  .topbar{padding:0 10px;gap:8px}
+  .page-sub{display:none}
+  .app-body{grid-template-columns:minmax(0,1fr)}
+  .app-body .panel{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;max-height:82vh;border:1px solid var(--line);border-radius:20px 20px 0 0;z-index:20;transform:translateY(105%);visibility:hidden;transition:transform .2s,visibility .2s;box-shadow:0 -20px 60px -30px rgba(27,27,31,.35)}
+  .app-body .panel.open{transform:none;visibility:visible}
+  .chat-inner{padding:16px 14px 6px}
+  .chat-col .intro{padding-top:5vh}
+  .composer-wrap{padding:6px 10px 10px}
+}
+@media(prefers-reduced-motion:reduce){.sidebar,.app-body .panel{transition:none}}
+
+/* Landing page */
+.landing main{padding-bottom:8vh}
+.landing-how{position:relative;z-index:1;width:100%;max-width:760px;margin:0 auto 72px;padding:0 24px}
+.landing-how h2{margin:0 0 18px;font-size:clamp(22px,2.4vw,28px);letter-spacing:-.02em}
+.how-steps{margin:0;padding-left:22px;display:grid;gap:14px;font-size:16px;line-height:1.6;color:var(--muted)}
+.how-steps strong{color:var(--text);font-weight:650}
+.landing-scope{margin:22px 0 0;font-size:14px;color:var(--muted)}
+.landing footer a{color:#494096;text-underline-offset:3px}
