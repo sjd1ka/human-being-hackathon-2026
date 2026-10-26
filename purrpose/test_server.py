@@ -148,6 +148,20 @@ class LocalServerTests(TestCase):
         self.assertTrue(run['steps'])
         self.assertTrue(all(type(s['at_ms']) is int and s['at_ms'] >= 0 for s in run['steps']))
 
+    def test_dashboard_page_served_with_local_assets(self):
+        status, page = self.request('/dashboard.html')
+        self.assertEqual(status, 200)
+        for name in ('/api-client.js', '/agent-map.js', '/dashboard.js'):
+            self.assertIn('src="'+name+'"', page)
+        self.assertNotIn('<script>', page)
+        self.assertNotIn('http://', page)
+        self.assertNotIn('https://', page)
+        self.assertNotIn('style=', page)
+        self.assertIn('Runs since this server started; cleared on restart.', page)
+        self.assertEqual(self.request('/dashboard.js')[0], 200)
+        self.assertEqual(self.request('/dashboard.css')[0], 200)
+        self.assertIn('/dashboard.html', self.request('/home.html')[1])
+
 
 if __name__ == '__main__':
     main()

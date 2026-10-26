@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Purrpose runs</title>
+  <meta name="description" content="Every review run since this local server started, with its agent map and step log.">
+  <link rel="icon" href="/design-favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/design-home.css">
+  <link rel="stylesheet" href="/dashboard.css">
+</head>
+<body class="dashboard-page">
+  <header>
+    <a class="brand" href="/home.html" aria-label="Purrpose chat">Purrpose</a>
+    <nav aria-label="Main"><a href="/home.html">Chat</a><a href="/dashboard.html" aria-current="page">Dashboard</a></nav>
+  </header>
+  <main class="dash-main">
+    <h1>Runs</h1>
+    <p class="scope">Runs since this server started; cleared on restart.</p>
+    <p class="scope">Only the last 50 runs are kept. Agents are code roles; this page shows what the backend recorded.</p>
+    <div class="dash-bar"><button type="button" id="refresh">Refresh</button><span id="status" role="status" aria-live="polite"></span></div>
+    <div class="dash-grid">
+      <section aria-label="Run list">
+        <table id="runs">
+          <thead><tr><th scope="col">Time</th><th scope="col">Chat</th><th scope="col">Case</th><th scope="col">Type</th><th scope="col">Result</th><th scope="col">Duration</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <p id="empty" class="empty" hidden>No runs yet. Ask about Lucy and say “refresh Lucy”, or ask for the fictional demo, in the chat.</p>
+      </section>
+      <section class="panel dash-detail" aria-label="Selected run" id="detail"><p class="empty">Select a run to see its agent map and step log.</p></section>
+    </div>
+  </main>
+  <script src="/api-client.js" defer></script><script src="/agent-map.js" defer></script><script src="/dashboard.js" defer></script>
+</body>
+</html>
