@@ -11,7 +11,7 @@
   function span(agent){
     if(!agent.ran)return '';
     const steps=agent.step_count+(agent.step_count===1?' step':' steps');
-    return agent.step_count>1?steps+' · '+agent.duration_ms+' ms':steps;
+    return agent.step_count>1?steps+' · '+(agent.duration_ms<1?'<1 ms':agent.duration_ms+' ms'):steps;
   }
   function value(v){
     if(v===null||v===undefined)return 'not stated';
@@ -79,7 +79,7 @@
           const rows=model.log[card.agent]||[];
           logBox.append(el('h4','Step log · '+card.label));
           if(!rows.length)logBox.append(el('p','No steps recorded: this agent did not run.'));
-          const list=el('ol');
+          const list=el('ul');
           for(const r of rows){const item=el('li',r.text);if(r.result)item.append(el('span',r.result,'result'));list.append(item);}
           logBox.append(list);
         });
@@ -88,8 +88,12 @@
       container.append(flow);
     }
     const toolList=el('ul',undefined,'map-tools');
-    for(const t of model.tools)toolList.append(el('li',t.text));
-    container.append(toolList,logBox,el('p',model.note,'map-note'));
+    for(const t of model.tools){
+      const used=!/not used|not connected|not configured|not recorded/.test(t.text);
+      const failed=/failed/.test(t.text);
+      toolList.append(el('li',t.text,failed?'tool-failed':used?'tool-used':'tool-idle'));
+    }
+    container.append(el('h4','Tools in this answer','map-subhead'),toolList,logBox,el('p',model.note,'map-note'));
   }
   const api={buildMapModel,renderAgentMap,FIXED_NOTE};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;

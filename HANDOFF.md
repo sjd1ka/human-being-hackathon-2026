@@ -201,3 +201,11 @@ Real versus mock: in this cloud session the two Guelph articles could not be fet
 
 Next: run the same flow on a machine with network and H-MEM configured; Zetaris and Nightshift rows remain "not connected".
 
+
+## Local verification and design polish (26 October 2026)
+
+On the development PC with the official H-MEM reference (revision `1742dec`) and the direct NVIDIA provider configured:
+
+- Full suite: 232 tests ran, all passed, none skipped (real H-MEM). `test_api_client.cjs`, `test_agent_map.cjs`, `test_review_panel.cjs` pass.
+- Live: "Tell me about Lucy" made 1 NVIDIA call (462 tokens) and showed it on the NVIDIA tool row; "refresh Lucy" completed a real read of both Guelph articles and recorded one run; H-MEM recall `mem-1` (186 ms) and save `mem-2` (172 ms) appeared as tool events; a second refresh reused the read and created no second run. Because memory held an earlier review, the Orchestrator kept the saved identity/funding observations instead of re-inspecting them.
+- `impeccable` polish pass: fixed the composer covering the newest message and its "See how this was worked out" link; review items no longer run into their details; raw read codes and ISO timestamps in chat replaced by a readable source-check list; agent cards show `<1 ms` instead of `0 ms`, with flow connectors and a "Tools in this answer" group distinguishing used, idle and failed tools; status chips use calm tones (amber for "More information needed"); empty panel previews the four agents; dashboard uses the logo, readable result pills and no repeated text; placeholder contrast raised to meet 4.5:1. The detector's Inter-font and gradient-glow findings are kept on purpose: both come from the brand in `design/README.md`.

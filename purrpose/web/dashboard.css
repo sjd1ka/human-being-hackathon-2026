@@ -1,5 +1,13 @@
 .dashboard-page header{max-width:1200px}
-.dashboard-page .brand{font-weight:700;font-size:20px;color:var(--text);text-decoration:none}
+.dashboard-page .brand{display:flex;align-items:center;gap:8px;font-weight:650;font-size:22px;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.dashboard-page .brand .dot{color:var(--pink)}
+.dashboard-page nav a[aria-current="page"]{color:var(--text)}
+.scope{max-width:70ch;line-height:1.5}
+#runs{overflow:hidden;font-variant-numeric:tabular-nums}
+#runs tbody tr:hover{background:#faf9f6}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;background:#efeee9;color:#55555c;font-size:12px;font-weight:600}
+.pill.is-needed{background:#fff4dd;color:#7a5200}
+.pill.is-ready{background:#e6f4ea;color:#1f6b42}
 .dash-main{max-width:1200px;width:100%;margin:0 auto;padding:12px 24px 40px;text-align:left;align-items:stretch}
 .dash-main h1{max-width:none;font-size:34px;margin:0 0 6px}
 .scope{color:var(--muted);font-size:14px;margin:2px 0}

@@ -83,10 +83,12 @@
     const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
     container.replaceChildren();
     if(model.fictional)container.append(el('p','Fictional example','fictional-label'));
-    container.append(el('h3',model.title),el('p',model.status,'review-status'),el('p',model.explanation,'review-summary'));
+    const tone=status=>status===STATUS.ready?' is-ready':status===STATUS.unable?' is-unable':' is-needed';
+    container.append(el('h3',model.title),el('p',model.status,'review-status review-overall'+tone(model.status)),el('p',model.explanation,'review-summary'));
     for(const s of model.sections){
       const box=el('div',undefined,'review-section');
-      box.append(el('h4',s.name),el('p',s.status,'review-status'));
+      const head=el('div',undefined,'review-head');head.append(el('h4',s.name),el('p',s.status,'review-status'+tone(s.status)));
+      box.append(head);
       const list=el('ul');
       for(const item of s.items){
         const li=el('li',item.text);

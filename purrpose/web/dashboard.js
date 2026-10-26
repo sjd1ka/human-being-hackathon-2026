@@ -5,6 +5,11 @@ const status=document.getElementById('status'),empty=document.getElementById('em
 const node=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
 let selected=null,token=0;
 const duration=ms=>ms<1000?ms+' ms':(ms/1000).toFixed(1)+' s';
+function result(code){
+ const td=node('td');const text=String(code||'—').replace(/_/g,' ');
+ const pill=node('span',text.charAt(0).toUpperCase()+text.slice(1));pill.className='pill'+(/pending|incomplete/.test(text)?' is-needed':/qualified|passed/.test(text)?' is-ready':'');
+ td.append(pill);return td;
+}
 function hint(text){const p=node('p',text);p.className='empty';detail.replaceChildren(p);}
 async function show(runId){
  selected=runId;const mine=++token;
@@ -26,10 +31,10 @@ async function load(){
    const time=node('td');const b=node('button',new Date(r.started_at*1000).toLocaleTimeString());b.type='button';b.dataset.run=r.run_id;
    b.setAttribute('aria-pressed',String(r.run_id===selected));b.addEventListener('click',()=>show(r.run_id));time.append(b);
    tr.append(time,node('td',r.session_label||'—'),node('td',r.case_name||r.case_id||'—'),node('td',r.kind==='fictional'?'Fictional example':'Real'),
-    node('td',String(r.status||'—').replace(/_/g,' ')),node('td',duration(r.duration_ms)));
+    result(r.status),node('td',duration(r.duration_ms)));
    rows.append(tr);
   }
-  status.textContent=list.runs.length+(list.runs.length===1?' run':' runs')+'. '+list.scope;
+  status.textContent=list.runs.length+(list.runs.length===1?' run':' runs');
  }catch(_){status.textContent='The run list could not be loaded.';}
 }
 document.getElementById('refresh').addEventListener('click',load);
