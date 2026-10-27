@@ -100,6 +100,15 @@ class RequestShapeTests(TestCase):
             self.assertNotIn('chat_template_kwargs', call['payload'])
             self.assertEqual(call['timeout'], 180)
 
+    def test_meterless_pinned_nemotron_disables_thinking(self):
+        # Nightshift 1.2.7 returns 502 empty_response when Nemotron spends the whole budget reasoning.
+        provider, transport = make({**METERLESS, 'METERLESS_MODEL': 'nvidia/nemotron-3.5-lightning-30b-a3b'})
+        provider.complete(MESSAGES)
+        self.assertEqual(transport.calls[0]['payload']['chat_template_kwargs'], {'enable_thinking': False})
+        provider, transport = make({**METERLESS, 'METERLESS_MODEL': 'nvidia/meta/muse-glimmer-30b'})
+        provider.complete(MESSAGES)
+        self.assertNotIn('chat_template_kwargs', transport.calls[0]['payload'])
+
 
 class LimitTests(TestCase):
     def test_per_minute_cap_blocks_before_dispatch(self):

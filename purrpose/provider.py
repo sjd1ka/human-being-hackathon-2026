@@ -129,8 +129,11 @@ def build_route(settings):
         url = meterless_url(settings.get('METERLESS_BASE_URL', ''))
         if not url:
             raise ProviderError('base_url_not_allowed')
+        # A pinned Nemotron lane otherwise reasons until Nightshift returns 502 empty_response;
+        # routing modes may reach other models, so they get no model-specific options.
+        extra = {'chat_template_kwargs': {'enable_thinking': False}} if model.startswith('nvidia/nemotron') else {}
         return Route(name, url, model, {'Authorization': 'Bearer '+token, 'meterless-app': APP_ID,
-                                        'meterless-scope': 'user'}, {})
+                                        'meterless-scope': 'user'}, extra)
     raise ProviderError('unknown_provider')
 
 
