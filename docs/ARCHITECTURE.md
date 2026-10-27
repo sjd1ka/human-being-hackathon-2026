@@ -41,7 +41,7 @@ The arbitrary-website path currently lacks deep independent credibility evaluati
 
 **Meterless H-MEM:** actual official reference-engine save/recall. A directory investigation has an aggregate memory scope; selecting its already-read website does not invent an additional website save. Explicit website reads have separate website scopes. Empty history is shown honestly.
 
-**Nightshift:** alternative provider adapter exists, not live-connected in the validated setup. Direct NVIDIA never counts as Nightshift.
+**Nightshift:** primary model provider. Purrpose calls the local Nightshift Runtime (`127.0.0.1:8088/v1`, Bearer runtime token, `meterless-app: purrpose`, `meterless-scope: user`). Nightshift routes the request to a pinned NVIDIA Nemotron cloud lane that holds the NVIDIA key. For a pinned Nemotron lane the adapter disables model thinking, which avoids Nightshift's `empty_response` errors. Live-verified on 27 October 2026 (see [NIGHTSHIFT.md](NIGHTSHIFT.md)). Direct NVIDIA never counts as Nightshift.
 
 **Codex / Cursor / Claude and design tools:** development, testing, research assistance and interface authoring. They are not evidence validators running inside the deployed application.
 

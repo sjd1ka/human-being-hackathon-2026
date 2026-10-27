@@ -116,8 +116,8 @@ Open `/home.html`, `/app.html`, `/dashboard.html` or `/architecture.html` on `ht
 
 Use the chat and its execution records. Confirm Zetaris SELECT results, a new NVIDIA call where intended, H-MEM save and a later recall. Open Agent map on the corresponding reply. A configured endpoint, installed package or old screenshot does not prove current use. Website 403s, redirects and robots restrictions can legitimately prevent a read.
 
-## Nightshift alternative and credit policy
+## Nightshift (primary AI provider)
 
-To use a separately running compatible Nightshift runtime, choose `PURRPOSE_MODEL_PROVIDER=meterless`, set its loopback base URL, real runtime token and routing model, and use the provider's required timeout (the adapter expects 180 seconds). Confirm the actual runtime contract before a paid request. The Web edition's in-tab endpoint is not established here as reachable from Python. Never paste an NVIDIA key into a runtime-token field.
+Nightshift is the primary model route: `PURRPOSE_MODEL_PROVIDER=meterless`, with the NVIDIA key held inside Nightshift rather than in `.env.local`. Install, NVIDIA lane, token and checks are in [NIGHTSHIFT.md](NIGHTSHIFT.md). It was live-verified on 27 October 2026 with Nightshift 1.2.7 for Windows and a pinned `nvidia/nemotron-3.5-lightning-30b-a3b` lane. The Web edition does not provide the 8088 endpoint. Never paste an NVIDIA key into a runtime-token field.
 
-Nightshift is not live-verified in this submission environment. Direct NVIDIA is not a substitute for claiming Nightshift use. Credentials and API credits are not included.
+`nvidia_direct` remains a separate, explicitly labelled route for development; it is never reported as Nightshift use. Credentials and API credits are not included.

@@ -23,6 +23,7 @@ The validated build passed **323 Python tests** with the official H-MEM referenc
 |---|---|
 | AWS-hosted Zetaris | SSL JDBC connection and fixed read-only identity/directory SELECTs succeeded. The CRA 2024 source returned 376 Ontario animal-charity rows in the observed run. |
 | NVIDIA Nemotron | A real hosted intent-classification request returned a validated organization-search intent and entered the directory workflow. |
+| Meterless Nightshift | 27 Oct 2026, Nightshift 1.2.7 for Windows: six chat requests (`discover` Guelph, `select_real_case`, `allocation`, `history`, `about`, `list_organizations`) went Purrpose → Nightshift Runtime → `nvidia/nemotron-3.5-lightning-30b-a3b`. All returned validated intents in 0.7–1.0 s at about 565 tokens each, and the Nightshift receipts named that routed model. Before thinking was disabled for the pinned lane, about 40% of requests failed with Nightshift `502 empty_response`. |
 | Meterless H-MEM | Official reference engine saved observations and retrieved records under the matching directory/website scope. |
 | Public website reader | Read organizational pages and the explicitly supplied Lucy appeal/update while honoring applicable access rules. Failed or unsupported access remained incomplete. |
 
@@ -30,6 +31,6 @@ These are observations from the configured environment, not a guarantee of avail
 
 ## Boundaries
 
-The current implementation does not independently authenticate clinical documents, certify current charity/risk status, guarantee remaining funding or produce a real qualified donation recommendation. It does not establish live Nightshift inference, automatic individual-appeal discovery for every organization or a production hosted deployment.
+The current implementation does not independently authenticate clinical documents, certify current charity/risk status, guarantee remaining funding or produce a real qualified donation recommendation. It does not establish automatic individual-appeal discovery for every organization or a production hosted deployment.
 
 See [Setup](SETUP.md) for reproducible configuration and [Architecture](ARCHITECTURE.md) for the distinction between live public observations, curated case logic and synthetic repair tests.

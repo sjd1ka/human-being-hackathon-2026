@@ -34,7 +34,8 @@ The coordinator selects a directory query, a bounded website investigation or a 
 
 | Technology | Role |
 |---|---|
-| **NVIDIA Nemotron** | Optional hosted intent classification. Code validates the model's output before choosing an action. |
+| **Meterless Nightshift** | Primary AI provider. Purrpose sends each intent request to the local Nightshift Runtime, which routes it to an NVIDIA Nemotron lane. [Setup](docs/NIGHTSHIFT.md). |
+| **NVIDIA Nemotron** | Nemotron 3.5 Lightning, reached through Nightshift, classifies the request. Code validates the model's output before choosing an action. |
 | **Zetaris Lightning** | Read-only SQL queries over the connected public CRA 2024 charity directory. |
 | **AWS** | Hosts the demonstrated Zetaris instance. The application does not provision AWS resources. |
 | **Meterless H-MEM** | Saves and recalls scoped source observations and unresolved questions using the official reference engine. |
@@ -67,7 +68,6 @@ Purrpose organizes evidence to support a decision. It does not process donations
 - Funding remains unknown without corresponding verified costs and funds received.
 - Website access and page coverage are limited. Login-protected content, social-media scraping, private uploads and media analysis are unsupported.
 - Individual appeal links can be supplied directly; automatic discovery of a current medical fundraiser for every organization is not established.
-- The Nightshift alternative provider adapter is not live-connected in the current implementation.
 
 Next steps include deeper evidence evaluation, broader permitted source coverage and automatic appeal discovery.
 
