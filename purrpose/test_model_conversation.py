@@ -187,10 +187,25 @@ class ModelConversationTests(TestCase):
         self.assertNotIn('results', answer)
         self.assertNotIn('Toronto Cat Rescue', answer['reply'])
 
+    def test_list_reply_matches_the_zetaris_directory_that_now_exists(self):
+        answer = self.say('which rescues are in ontario?', intent('list_organizations'))
+        self.assertNotIn('planned', answer['reply'])
+        self.assertNotIn('one real case', answer['reply'])
+        self.assertIn('find cat rescue organizations in', answer['reply'])
+        self.assertIn('not configured on this server', answer['reply'])  # the test app has no Zetaris JDBC
+
+    def test_list_reply_drops_the_not_configured_note_when_zetaris_is_configured(self):
+        self.app.registry.env_file = self.app.registry.python = self.app.registry.jvm = 'configured'
+        answer = self.app.conversation.match(self.app.conversation.sessions.setdefault('one', {
+            'city': None, 'region_wide': False, 'active': False, 'expand': False, 'collection': 'real'}),
+            'which rescues are in ontario?', False)
+        self.assertNotIn('not configured', answer['reply'])
+
     def test_about_explains_what_purrpose_does_and_who_decides(self):
         answer = self.say('what can you do?', intent('about'))
-        for phrase in ('Lucy', 'code', 'model'):
+        for phrase in ('Lucy', 'code', 'model', 'Zetaris', 'public website'):
             self.assertIn(phrase, answer['reply'])
+        self.assertNotIn('one real case', answer['reply'])
         self.assertNotIn('results', answer)
 
     def test_donate_how_points_to_the_rescue_and_takes_no_payment(self):

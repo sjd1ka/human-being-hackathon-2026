@@ -65,6 +65,18 @@ def record_memory_read(app,case_id,result,started,status):
 
 
 def record_directory(app,result,started):
+    if result.get('error')=='aws_jdbc_directory_not_configured':
+        # Nothing was queried or read: record only the stop, never collector or evaluator work.
+        reason='Zetaris directory not configured on this server'
+        trace=[*({'role':'coordinator','action':'skip_role','skipped_role':role,'reason':reason,'at_ms':0}
+                 for role in ('identity_risk','evaluator','dispute_resolver')),
+               {'role':'coordinator','action':'stop_directory_not_configured','at_ms':0,'error_category':result['error']}]
+        result['tools']=[{'tool':'zetaris','operation':'directory_query','status':'not_configured','duration_ms':0,'memory_id':None}]
+        review={'case_id':'DIRECTORY-ON','case_name':'Ontario public directory discovery','scenario_type':'historical_directory_and_live_websites',
+                'status':result['status'],'trace':trace}
+        result['run_id']=app.runs.add(review,kind='real',started_at=started,ended_at=time.time(),tools=result['tools'])
+        app.turn['run_id']=result['run_id']
+        return result
     trace=[{'role':'coordinator','action':'select_bounded_directory_then_public_websites','at_ms':0},
            {'role':'identity_risk','action':'query_historical_directory_not_current_registration','at_ms':0},
            {'role':'rescue_need','action':'inspect_available_public_websites','at_ms':round((time.time()-started)*1000)},

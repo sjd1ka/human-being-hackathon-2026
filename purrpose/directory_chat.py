@@ -2,6 +2,7 @@
 from copy import deepcopy
 import re
 from .chat_intent import ONTARIO_CITIES
+from .directory import directory_case_id
 from .everyday_intent import normalize,discovery_signal,organization_signal
 import time
 from .memory import MemoryUnavailable
@@ -22,7 +23,7 @@ def handle(app,state,message,zh):
     if state.get('tool_context')=='directory' and any(w in text for w in ('history','历史','记忆记录')):
         directory=state.get('directory_result',{})
         city=directory.get('city')
-        case='DIRECTORY-ON-'+(city.upper().replace(' ','-') if city else 'ALL')
+        case=directory_case_id(city)
         started=time.time();status='not_configured';history={'status':'history_unavailable','entries':[]}
         if app.memory:
             try:
@@ -74,6 +75,10 @@ def handle(app,state,message,zh):
         state.pop('pending_directory',None)
         result=app.dispatch('/api/find-organizations',{'city':city})
         state.update(directory_result=deepcopy(result),tool_context='directory',research=False,active=False)
+        if result.get('error')=='aws_jdbc_directory_not_configured':
+            return reply('The Zetaris directory connection is not configured on this server, so no directory query or website read was made. '
+                         'This says nothing about which rescues exist. Ask about Lucy, or share a rescue’s public website to review it.',
+                         '本服务器未配置 Zetaris 目录连接，因此没有执行目录查询或网站读取。这不代表当地没有救助组织。可以问 Lucy，或提供救助机构的公开网站进行检查。')
         if not result.get('candidates'):
             return reply('I could not return matching candidates from this bounded directory check. This does not mean no rescues exist. No automatic expansion was performed.',
                          '这次限定范围的目录检查没有返回匹配候选，不代表当地没有救助组织；没有自动扩大范围。',directory_result=result)

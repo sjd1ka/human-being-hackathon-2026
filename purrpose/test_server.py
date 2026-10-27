@@ -72,7 +72,8 @@ class LocalServerTests(TestCase):
     def test_connected_design_has_local_assets_and_honest_scope(self):
         status,page=self.request('/app.html')
         self.assertEqual(status,200)
-        self.assertIn('one real pending case',page)
+        self.assertIn('does not certify a rescue',page)
+        self.assertNotIn('one real pending case',page)
         self.assertNotIn('fonts.googleapis.com',page)
         self.assertNotIn('<script>',page)
         self.assertNotIn('Sign in',page)

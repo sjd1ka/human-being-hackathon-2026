@@ -186,6 +186,11 @@ def worker(env_file,jvm,city=None,query_only=False):
     emit(result);return result
 
 
+def directory_case_id(city):
+    """H-MEM scope for one directory search; scopes allow only letters, digits, '_' and '-'."""
+    return 'DIRECTORY-ON-'+(re.sub(r'[^A-Z0-9]+','-',city.upper()).strip('-') if city else 'ALL')
+
+
 class AWSDirectory:
     def __init__(self,registry,runner=None):self.registry=registry;self.runner=runner or subprocess.run
     def find(self,city=None,memory=None):
@@ -211,7 +216,7 @@ class AWSDirectory:
         result.update(qualified=False,remaining_minor=None,memory={'status':'not_configured'})
         started=time.monotonic()
         if memory and result.get('directory_summary'):
-            case='DIRECTORY-ON-'+(city.upper().replace(' ','-') if city else 'ALL')
+            case=directory_case_id(city)
             try:
                 refs=[SOURCE_URL]+[c['website_source'] for c in result['candidates'] if c.get('website_source')]
                 saved=memory.call('save',case,{'schema_version':1,'case_id':case,'run_id':str(uuid4()),

@@ -20,6 +20,32 @@ class DirectoryTests(unittest.TestCase):
         self.assertTrue(state['pending_directory'])
         self.assertIn('Ontario city',result['reply'])
 
+    def test_unconfigured_zetaris_is_disclosed_and_records_no_agent_work(self):
+        from .server import LocalApp
+        app=LocalApp()  # default registry: no remote Zetaris JDBC
+        answer=app.conversation.reply('nz','find cat rescue organizations in Toronto')
+        self.assertIn('Zetaris',answer['reply'])
+        self.assertIn('not configured',answer['reply'])
+        self.assertNotIn('could not return matching candidates',answer['reply'])
+        run=app.runs.runs[-1]
+        ran={a['agent'] for a in run['agents'] if a['ran']}
+        self.assertEqual(ran,{'orchestrator'})
+        self.assertEqual(next(a for a in run['agents'] if a['agent']=='orchestrator')['decision'],'stop directory not configured')
+        self.assertNotIn('directory_result',answer)
+        collector=next(a for a in run['agents'] if a['agent']=='collector')
+        self.assertIn('Zetaris',collector['skipped_reason'])
+        self.assertEqual([(t['tool'],t['status']) for t in run['tools']],[('zetaris','not_configured')])
+
+    def test_every_listed_city_gives_a_valid_memory_scope(self):
+        import re
+        from .chat_intent import ONTARIO_CITIES
+        from .directory import directory_case_id
+        for city in (*ONTARIO_CITIES,None):
+            self.assertRegex(directory_case_id(city),r'^[a-zA-Z0-9_-]{1,64}$')  # HMem.call rejects anything else
+        self.assertEqual(directory_case_id('St. Catharines'),'DIRECTORY-ON-ST-CATHARINES')
+        self.assertEqual(directory_case_id('Sault Ste. Marie'),'DIRECTORY-ON-SAULT-STE-MARIE')
+        self.assertEqual(directory_case_id(None),'DIRECTORY-ON-ALL')
+
     def test_conflicting_identifier_excluded(self):
         row=['123456789RR0001','Cats','Cats','Toronto','ON','0180','2']
         other=list(row);other[1]='Other Cats'

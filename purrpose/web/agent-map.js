@@ -22,7 +22,12 @@
   }
   function nvidiaText(agentRun){
     const m=agentRun&&agentRun.model;
-    if(m&&m.route==='meterless')return 'NVIDIA Nemotron · not directly called (Nightshift route)';
+    if(m&&m.route==='meterless'){
+      // Nemotron is reached through Nightshift; name the model Nightshift reports, never the configured one.
+      if(!(m.new_cloud_calls>0))return 'NVIDIA Nemotron · not used';
+      if(m.status==='failed')return 'NVIDIA Nemotron · through Nightshift · call failed, answered with fixed phrases';
+      return 'NVIDIA Nemotron · answered through Nightshift · '+String(m.returned_model||'model not reported').replace(/^nvidia\//,'');
+    }
     if(m&&m.status==='failed')return 'NVIDIA Nemotron · call failed, answered with fixed phrases';
     if(m&&m.status==='invalid_output'){
       const tokens=typeof m.total_tokens==='number'?' · '+m.total_tokens+' tokens':'';
@@ -48,12 +53,18 @@
   function zetarisText(run){
     const events=(run&&run.tools||[]).filter(t=>t.tool==='zetaris');
     if(!events.length)return 'Zetaris · not used in this answer';
+    if(events.every(t=>t.status==='not_configured'))return 'Zetaris · not configured on this server';
     return 'Zetaris · '+events.map(t=>t.operation+' '+(t.status==='completed'||t.status==='ok'?'completed':'failed')+' · '+t.duration_ms+' ms'+(t.error_category?' · '+t.error_category:'')).join(' · ')+' · historical identity only';
   }
   function nightshiftText(agentRun){
     const model=agentRun&&agentRun.model;
-    if(model&&model.route==='meterless'&&model.new_cloud_calls>0)return 'Nightshift · '+pluralCalls(model.new_cloud_calls)+(model.status==='failed'?' · failed':' · request recorded')+(typeof model.total_tokens==='number'?' · '+model.total_tokens+' tokens':'');
-    return 'Nightshift · not connected';
+    if(model&&model.route==='meterless'&&!(model.new_cloud_calls>0))return 'Nightshift · connected, not called for this answer';
+    if(model&&model.route==='meterless'){
+      if(model.status==='failed')return 'Nightshift · '+pluralCalls(model.new_cloud_calls)+' · failed, answered with fixed phrases';
+      return 'Nightshift · '+pluralCalls(model.new_cloud_calls)+' · routed to '+(model.returned_model||'model not reported')
+        +(typeof model.total_tokens==='number'?' · '+model.total_tokens+' tokens':'');
+    }
+    return 'Nightshift · not used in this answer';
   }
   function buildMapModel(run,agentRun) {
     const modelLatency=agentRun&&agentRun.model&&agentRun.model.new_cloud_calls>0&&typeof agentRun.model.latency_ms==='number'?' · '+agentRun.model.latency_ms+' ms':'';

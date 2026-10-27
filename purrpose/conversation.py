@@ -82,6 +82,16 @@ class Conversation:
         result['agent_run'] = {'run_id': turn['run_id'], 'note': note, 'model': self.model_info(result)}
         return result
 
+    def zetaris_ready(self):
+        return all(hasattr(self.app.registry, k) for k in ('env_file', 'python', 'jvm'))
+
+    def zetaris_note(self, zh=False):
+        if self.zetaris_ready():
+            return ''
+        return ('本服务器未配置 Zetaris 连接，所以目录搜索会说明这一点，而不是返回机构名单。' if zh else
+                ' The Zetaris connection is not configured on this server, so a directory search will say so instead of '
+                'listing organizations.')
+
     def model_info(self, result):
         info = result.get('model_intent')
         if not info:
@@ -185,14 +195,16 @@ class Conversation:
             return response("You're welcome. Ask any time about a case, its sources or what is still missing.",
                             '不客气。随时可以问案例、来源或仍缺少的信息。')
         if any(w in text for w in ABOUT_WORDS):
-            return response('Purrpose checks the evidence behind an animal rescue appeal. When you ask about a case, four agent roles in code '
-                            'read its permitted sources, check what they support, look into conflicting statements and keep anything unproven '
-                            'marked as missing. An AI model only works out what you are asking; code writes every answer, and nothing counts as '
-                            'verified without a source. There is one real case right now, Lucy from Guelph Humane Society, plus a labelled '
-                            'fictional example.',
-                            'Purrpose 检查动物救助呼吁背后的证据。你问到某个案例时，四个代码角色会读取允许的来源、核对来源支持什么、调查相互矛盾的说法，'
-                            '并把未经证实的内容标为缺失。AI 模型只负责理解你在问什么；每个回答都由代码写出，没有来源就不算核实。'
-                            '目前有一个真实案例：Guelph Humane Society 的 Lucy，另有一个标明为虚构的示例。')
+            return response('Purrpose checks the evidence behind animal rescue appeals. It can find Ontario cat rescues in the CRA’s '
+                            '2024 charity records through Zetaris, read a rescue’s public website you share, and review Lucy, a real '
+                            'appeal from Guelph Humane Society, in depth. Agent roles in code read the permitted sources, check what they '
+                            'support, look into conflicting statements and keep anything unproven marked as missing. An AI model only '
+                            'works out what you are asking; code writes every answer, and nothing counts as verified without a source.'
+                            + self.zetaris_note(),
+                            'Purrpose 检查动物救助呼吁背后的证据。它可以通过 Zetaris 在加拿大税务局 2024 年慈善记录中查找安省猫咪救助机构，'
+                            '读取你分享的救助机构公开网站，并深入审查 Guelph Humane Society 的真实呼吁 Lucy。代码中的代理角色读取允许的来源、'
+                            '核对来源支持什么、调查相互矛盾的说法，并把未经证实的内容标为缺失。AI 模型只负责理解你在问什么；每个回答都由代码写出，'
+                            '没有来源就不算核实。' + self.zetaris_note(zh=True))
         if any(w in text for w in DONATE_WORDS):
             return response("Purrpose does not take payments or donations. Give through the rescue's own official website or charity page, "
                             "after checking its registration and the case's evidence. For Lucy, the donation link is on Guelph Humane "
@@ -200,13 +212,13 @@ class Conversation:
                             'Purrpose 不收款，也不代收捐款。请在核对机构登记和案例证据后，通过救助机构自己的官网或慈善页面捐款。'
                             'Lucy 的捐款链接在 Guelph Humane Society 自己的呼吁页面上；可以先问“还缺哪些证据？”了解哪些内容尚未核实。')
         if any(w in text for w in LIST_WORDS):
-            return response('Purrpose cannot call any rescue trusted: it reviews the evidence behind one appeal at a time. A list of '
-                            'Ontario animal charities from the CRA’s 2024 charity data is planned through the Zetaris connection, '
-                            'which is not connected yet. Right now one real case can be reviewed: Lucy, from Guelph Humane Society. '
-                            'Say “Tell me about Lucy” to see its evidence.',
-                            'Purrpose 不能称任何救助机构“可信”，它一次只审查一个呼吁背后的证据。基于加拿大税务局 2024 年慈善数据的'
-                            '安省动物慈善机构名单计划通过 Zetaris 提供，目前尚未接通。现在可以审查一个真实案例：Guelph Humane Society 的 Lucy。'
-                            '说“Tell me about Lucy”查看证据。')
+            return response('Purrpose cannot call any rescue trusted: it checks the evidence behind appeals. It can list Ontario '
+                            'animal charities from the CRA’s 2024 records through Zetaris. Say, for example, “find cat rescue '
+                            'organizations in Toronto”. Those records are historical background, not proof of current registration '
+                            'or of any appeal.' + self.zetaris_note(),
+                            'Purrpose 不能称任何救助机构“可信”，它核对呼吁背后的证据。它可以通过 Zetaris 列出加拿大税务局 2024 年记录中的'
+                            '安省动物慈善机构，例如说“find cat rescue organizations in Toronto”。这些记录只是历史背景，不能证明当前登记或任何呼吁。'
+                            + self.zetaris_note(zh=True))
         select_research = any(w in text for w in ('lucy', 'real case', '真实案例'))
         research_history = any(w in text for w in ('history', '历史记录', '审查记录'))
         if research_history and not select_research and state.get('collection') == 'synthetic':

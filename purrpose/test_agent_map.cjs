@@ -36,7 +36,10 @@ assert.equal(m.tools[0].text,'NVIDIA Nemotron · 1 call · 321 tokens');
 for(const t of m.tools.slice(1))assert.ok(!/token/i.test(t.text));
 assert.deepEqual(m.tools.map(t=>t.tool),['nvidia','hmem','zetaris','nightshift']);
 assert.equal(m.tools[2].text,'Zetaris · not used in this answer');
-assert.equal(m.tools[3].text,'Nightshift · not connected');
+// an unconfigured directory is disclosed, not shown as a failed query
+assert.equal(model(run({tools:[{tool:'zetaris',operation:'directory_query',status:'not_configured',duration_ms:0}]})).tools[2].text,
+  'Zetaris · not configured on this server');
+assert.equal(m.tools[3].text,'Nightshift · not used in this answer');
 
 // tokens only when a call happened
 m=model(run(),{...none,model:{route:'nvidia_direct',status:'cached',intent:'amount',new_cloud_calls:0,total_tokens:321}});
@@ -52,6 +55,18 @@ m=model(run(),{...none,model:{route:'nvidia_direct',status:'invalid_output',inte
 assert.equal(m.tools[0].text,"NVIDIA Nemotron · 1 call · 475 tokens · answer didn't fit the supported requests, used fixed phrases");
 m=model(run(),{...none,model:{route:'nvidia_direct',status:'invalid_output',intent:null,new_cloud_calls:1,total_tokens:null}});
 assert.equal(m.tools[0].text,"NVIDIA Nemotron · 1 call · answer didn't fit the supported requests, used fixed phrases");
+
+// Nightshift route: Nemotron answered through Nightshift, and both rows name the routed model
+const viaNs={route:'meterless',status:'used',intent:'about',new_cloud_calls:1,total_tokens:568,latency_ms:765,returned_model:'nvidia/nemotron-3.5-lightning-30b-a3b'};
+m=model(run(),{...none,model:viaNs});
+assert.equal(m.tools[0].text,'NVIDIA Nemotron · answered through Nightshift · nemotron-3.5-lightning-30b-a3b · 765 ms');
+assert.equal(m.tools[3].text,'Nightshift · 1 call · routed to nvidia/nemotron-3.5-lightning-30b-a3b · 568 tokens');
+m=model(run(),{...none,model:{...viaNs,status:'failed',total_tokens:null,returned_model:null}});
+assert.equal(m.tools[0].text,'NVIDIA Nemotron · through Nightshift · call failed, answered with fixed phrases · 765 ms');
+assert.equal(m.tools[3].text,'Nightshift · 1 call · failed, answered with fixed phrases');
+m=model(run(),{...none,model:{...viaNs,status:'cached',new_cloud_calls:0,total_tokens:null,returned_model:null}});
+assert.equal(m.tools[0].text,'NVIDIA Nemotron · not used');
+assert.equal(m.tools[3].text,'Nightshift · connected, not called for this answer');
 
 // H-MEM states
 assert.equal(model(run()).tools[1].text,'H-MEM · not configured');
